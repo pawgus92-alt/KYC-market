@@ -69,7 +69,18 @@ p { margin: 0 0 0.8em; }
 }
 .nav { display: flex; gap: 16px; margin-left: auto; }
 .nav a { text-decoration: none; font-size: 0.92rem; font-weight: 600; }
-.nav a:hover { color: var(--teal); }
+.nav a:hover, .nav a[aria-current="page"] { color: var(--teal); }
+.doors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.door {
+  display: block;
+  padding: 18px;
+  background: var(--card);
+  border: 1px solid var(--ink);
+  box-shadow: 6px 6px 0 var(--teal);
+  text-decoration: none;
+}
+.door:hover { transform: translate(-2px, -2px); }
+.page h1, main.section > .section-head h1, main.section h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); }
 .pilot-flag {
   margin: 0;
   font-size: 0.75rem;
@@ -259,7 +270,7 @@ tr:last-child td { border-bottom: 0; }
   .top-inner { flex-wrap: wrap; align-items: flex-start; min-height: 0; padding: 10px 0 8px; }
   .nav { order: 3; width: 100%; margin-left: 0; flex-wrap: wrap; gap: 8px 14px; }
   .pilot-flag { margin-left: auto; max-width: 9.5rem; text-align: right; line-height: 1.3; }
-  .hero, .desk, .steps, .stops, .price-grid, .split { grid-template-columns: 1fr; }
+  .hero, .desk, .steps, .stops, .price-grid, .split, .doors { grid-template-columns: 1fr; }
   .hero { padding-top: 32px; }
   .meter-cost { position: static; border-left: 0; display: block; margin-top: 6px; background: transparent; }
   .meter-track { display: block; height: auto; }

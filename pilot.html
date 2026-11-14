@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Пилот — Контур</title>
+    <meta name="description" content="Пилот Контура начинается с одной лицензированной фирмы. Форма документы не принимает." />
+    <meta name="theme-color" content="#164e4a" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,520;7..72,680&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">К содержанию</a>
+    <header class="top">
+      <div class="wrap top-inner">
+        <a class="brand" href="./index.html"><span class="brand-mark" aria-hidden="true"></span>Контур</a>
+        <nav class="nav" aria-label="Страницы">
+          <a href="./index.html">Главная</a>
+          <a href="./vydacha.html">Выдача</a>
+          <a href="./granicy.html">Границы</a>
+          <a href="./pilot.html" aria-current="page">Пилот</a>
+        </nav>
+        <p class="pilot-flag">Макет. Документы не принимаем</p>
+      </div>
+    </header>
+    <main id="main" class="wrap section">
+      <div class="split">
+        <div>
+          <p class="eyebrow">Пилот</p>
+          <h1>Сначала одна лицензированная фирма</h1>
+          <p>Кошелёк подключается позже и только за предикатом. Протокол без программы AML в пилот не берётся.</p>
+          <ol class="roadmap">
+            <li><strong>Бумага.</strong> DPIA и вывод counsel. Паспортов ещё нет.</li>
+            <li><strong>Синтетика.</strong> Согласие, отзыв и журнал на макете.</li>
+            <li><strong>Один заказчик.</strong> Договор, регион хранения, одна проверка и один отказ с человеком в контуре.</li>
+            <li><strong>Чужая фирма.</strong> Только после письменного reliance.</li>
+          </ol>
+        </div>
+        <form class="pilot-form" id="pilot-form" novalidate>
+          <h2>Заявка на разговор</h2>
+          <p class="form-note">Макет не отправляет форму и не принимает документы.</p>
+          <label>Организация<input name="org" type="text" autocomplete="organization" required maxlength="120" /></label>
+          <label>Страна регистрации<input name="country" type="text" autocomplete="country-name" required maxlength="80" /></label>
+          <label>Роль
+            <select name="role" required>
+              <option value="">Выберите</option>
+              <option value="casp">Лицензированный CASP или биржа</option>
+              <option value="wallet">Кошелёк без своей AML-программы</option>
+              <option value="other">Другое</option>
+            </select>
+          </label>
+          <label>Рабочая почта<input name="email" type="email" autocomplete="email" required maxlength="120" /></label>
+          <label class="check">
+            <input name="ack" type="checkbox" required />
+            <span>Понимаю, что это макет: документы не загружаются, заявка никуда не уходит, а боевой приём требует DPIA и локального counsel.</span>
+          </label>
+          <button class="btn btn-primary" type="submit">Показать следующий шаг</button>
+          <p class="form-error" id="form-error" role="alert"></p>
+          <div class="form-result" id="form-result" hidden></div>
+        </form>
+      </div>
+    </main>
+    <footer class="foot">
+      <div class="wrap foot-inner">
+        <p><strong>Контур</strong> не хранит эту заявку. После закрытия вкладки её не остаётся.</p>
+      </div>
+    </footer>
+    <script src="./main.js" defer></script>
+  </body>
+</html>
