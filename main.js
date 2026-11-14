@@ -115,6 +115,7 @@ function stamp(text) {
   state.log = state.log.slice(0, 6);
 }
 
+if (requestEl && journalEl) {
 document.querySelectorAll('input[name="party"]').forEach((input) => {
   input.addEventListener("change", () => {
     if (!input.checked) return;
@@ -155,7 +156,10 @@ requestEl.addEventListener("click", (event) => {
   }
   render();
 });
+render();
+}
 
+if (form && formError && formResult) {
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   formError.textContent = "";
@@ -186,5 +190,4 @@ form.addEventListener("submit", (event) => {
   formResult.append(heading, sent, step);
   formResult.scrollIntoView({ block: "nearest" });
 });
-
-render();
+}

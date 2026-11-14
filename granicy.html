@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Границы — Контур</title>
+    <meta name="description" content="Что Контуру можно, что можно только с лицензией заказчика, и что с данными делать нельзя." />
+    <meta name="theme-color" content="#164e4a" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,520;7..72,680&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">К содержанию</a>
+    <header class="top">
+      <div class="wrap top-inner">
+        <a class="brand" href="./index.html"><span class="brand-mark" aria-hidden="true"></span>Контур</a>
+        <nav class="nav" aria-label="Страницы">
+          <a href="./index.html">Главная</a>
+          <a href="./vydacha.html">Выдача</a>
+          <a href="./granicy.html" aria-current="page">Границы</a>
+          <a href="./pilot.html">Пилот</a>
+        </nav>
+        <p class="pilot-flag">Нужны DPIA и локальный counsel</p>
+      </div>
+    </header>
+    <main id="main" class="wrap section">
+      <div class="section-head">
+        <p class="eyebrow">Границы</p>
+        <h1>Можно, можно с лицензией, нельзя</h1>
+        <p>Это карта для разговора с counsel, не разрешение принимать документы. До 10 июля 2027 CDD в ЕС задаёт национальный закон. Затем применяется регламент (EU) 2024/1624.</p>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Статус</th><th>Что сюда входит</th><th>Чего здесь нет</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tag tag-ok">Можно</span></td>
+              <td>Процессор одной лицензированной фирмы и узкий предикат по отдельному согласию.</td>
+              <td>Своей лицензии CASP, если фирма не хранит криптоактивы и не проводит обмены.</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-wait">С лицензией</span></td>
+              <td>Reliance между двумя обязанными лицами, если закон страны его даёт и досье доступно надзору сразу.</td>
+              <td>Запуска, пока counsel не подтвердил reliance.</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-no">Нельзя</span></td>
+              <td>Продажа базы, скрытая передача, общий значок на все биржи, помощь тем, кого проверка отклонила.</td>
+              <td>Исключения «это же ZK».</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="fine">ZK уместен, чтобы кошелёк проверил предикат и не увидел паспорт. Бирже он не заменяет файл, свежий скрининг и Travel Rule. На 14 ноября 2026 сертифицированного EUDI Wallet в ЕС не было: кошелёк не опора первого релиза.</p>
+      <h2>Что с данными не делается</h2>
+      <ul class="stops">
+        <li>Не продаём базу личностей и «лиды KYC».</li>
+        <li>Не отдаём досье приложению, которое человек не видел.</li>
+        <li>Не прячем согласие в оферте биржи.</li>
+        <li>Не помогаем пройти проверку чужим документом.</li>
+        <li>Не обещаем бирже отказаться от своей программы AML.</li>
+        <li>Не пишем паспорт или факт допуска в публичный реестр.</li>
+        <li>Не учим модели на документах клиентов.</li>
+        <li>Не показываем приложению причину «санкции».</li>
+      </ul>
+    </main>
+    <footer class="foot">
+      <div class="wrap foot-inner">
+        <p>Локальная проверка обязательна до пилота с настоящими данными. DPIA повторяется, когда меняются цель, получатель или страна хранения.</p>
+      </div>
+    </footer>
+  </body>
+</html>
