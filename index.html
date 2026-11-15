@@ -3,302 +3,174 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Контур — повторный статус проверки без лишних данных</title>
-    <meta
-      name="description"
-      content="Контур повторяет статус KYC между приложениями, которым человек сам разрешил выдачу. Досье остаётся у обязанного лица. База личностей не продаётся."
-    />
-    <meta name="theme-color" content="#164e4a" />
+    <title>5 Minute Games — игры на пять минут</title>
+    <meta name="description" content="Четыре короткие браузерные игры: змейка, 2048, кликер и память. Рекорды остаются на этом устройстве." />
+    <meta name="theme-color" content="#1c1612" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,520;7..72,680&family=Manrope:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <a class="skip" href="#main">К содержанию</a>
-    <header class="top">
-      <div class="wrap top-inner">
-        <a class="brand" href="#top">
-          <span class="brand-mark" aria-hidden="true"></span>
-          Контур
+    <a class="skip" href="#main">К играм</a>
+    <header class="bar">
+      <div class="wrap bar-inner">
+        <a class="logo" href="./index.html">
+          <span class="logo-mark" aria-hidden="true">5</span>
+          <span class="logo-text">Minute Games</span>
         </a>
         <nav class="nav" aria-label="Разделы">
-          <a href="#release">Кому что</a>
-          <a href="#how">Как устроено</a>
-          <a href="#law">Границы</a>
-          <a href="#price">Цена</a>
-          <a href="#pilot">Пилот</a>
+          <a href="#games">Игры</a>
+          <a href="#popular">Популярное</a>
+          <button class="nav-suggest" type="button" data-suggest>Предложить игру</button>
         </nav>
-        <p class="pilot-flag">Макет. Документы не принимаем</p>
       </div>
     </header>
-
     <main id="main">
-      <section class="hero wrap" id="top">
-        <div class="hero-copy">
-          <p class="eyebrow">Повторное использование статуса · одна страна · один заказчик</p>
-          <h1>Один раз проверить. Каждому отдать только нужное.</h1>
-          <p class="lede">
-            Контур хранит проверку у обязанного лица и по отдельному решению человека отдаёт наружу узкий ответ.
-            Биржа получает своё досье. Кошелёк получает «да» или «нет» на один вопрос. База паспортов не продаётся и в публичный реестр не пишется.
-          </p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="#release">Посмотреть выдачу</a>
-            <a class="btn btn-ghost" href="#pilot">Запросить пилот</a>
-          </div>
-          <ul class="hero-points">
-            <li>Согласие на лишнюю выдачу не спрятано в оферте биржи.</li>
-            <li>Значок «KYC пройден» биржу от AML не освобождает.</li>
-            <li>До первого настоящего паспорта нужны DPIA и локальный counsel.</li>
-          </ul>
+      <section class="hero wrap">
+        <div>
+          <p class="eyebrow">Короткие игры между делами</p>
+          <h1>Пять минут — и вы уже играете</h1>
+          <p class="lede">Змейка, 2048, кликер и память. Без установки и без аккаунта: рекорд записывается в этот браузер.</p>
         </div>
-        <aside class="receipt" aria-label="Пример квитанции выдачи">
-          <p class="receipt-kicker">Квитанция · только этот браузер</p>
-          <h2>Северная биржа</h2>
-          <p class="receipt-role">Обязанное лицо · основание: правовая обязанность AML</p>
-          <ul class="receipt-list">
-            <li><span>Документ и живость</span><strong>в досье биржи</strong></li>
-            <li><span>Страна проживания</span><strong>в досье биржи</strong></li>
-            <li><span>Санкции и PEP</span><strong>MLRO биржи</strong></li>
-            <li><span>Паспорт кошельку</span><strong>не отдаётся</strong></li>
-            <li><span>Причина «санкции» приложению</span><strong>не отдаётся</strong></li>
-          </ul>
-          <p class="receipt-foot">Отказ останавливает счёт. Архив, который закон велит хранить, кнопка не стирает.</p>
-        </aside>
+        <p class="ticket" aria-hidden="true">
+          <span>сеанс</span>
+          <strong>5:00</strong>
+          <span>без антракта</span>
+        </p>
       </section>
 
-      <section class="band" id="release">
-        <div class="wrap">
-          <div class="section-head">
-            <p class="eyebrow">01 · Выдача</p>
-            <h2>Кому что можно отдать</h2>
-            <p>
-              Это рабочий макет согласия. Выбор остаётся на этой странице, на сервер ничего не уходит, документы загрузить нельзя.
-              Смените получателя и посмотрите, что именно он увидит.
-            </p>
-          </div>
-
-          <div class="desk">
-            <fieldset class="party-set">
-              <legend>Кто просит статус</legend>
-              <label class="party">
-                <input type="radio" name="party" value="casp" checked />
-                <span>
-                  <strong>Биржа и CASP</strong>
-                  <small>Обязанное лицо. Нужно досье, не значок.</small>
-                </span>
-              </label>
-              <label class="party">
-                <input type="radio" name="party" value="wallet" />
-                <span>
-                  <strong>Кошелёк</strong>
-                  <small>Предикат по отдельному согласию.</small>
-                </span>
-              </label>
-              <label class="party">
-                <input type="radio" name="party" value="open" />
-                <span>
-                  <strong>Нерегулируемое приложение</strong>
-                  <small>Значок вместо программы AML не продаётся.</small>
-                </span>
-              </label>
-            </fieldset>
-
-            <div class="request" id="request" aria-live="polite"></div>
-          </div>
-
-          <div class="journal-wrap">
-            <h3>Журнал этой вкладки</h3>
-            <ol class="journal" id="journal">
-              <li class="empty">Решений пока нет.</li>
-            </ol>
-          </div>
-        </div>
-      </section>
-
-      <section class="wrap section" id="how">
+      <section class="wrap section" id="games">
         <div class="section-head">
-          <p class="eyebrow">02 · Контур</p>
-          <h2>Как устроен пилот</h2>
-          <p>Одна страна, один лицензированный заказчик, политика приёма написана его MLRO. Контур считает ответ и ведёт журнал. Программу AML он на себя не забирает.</p>
+          <p class="eyebrow">Каталог</p>
+          <h2>Игры</h2>
         </div>
-        <ol class="steps">
-          <li>
-            <span>1</span>
-            <h3>Проверка у названного провайдера</h3>
-            <p>Документ и живость делает готовый провайдер по договору. Свою модель распознавания паспортов пилот не обучает и чужие селфи для этого не копит.</p>
+        <div class="game-grid">
+          <a class="card" href="./snake.html">
+            <div class="card-icon tone-green" aria-hidden="true">
+              <svg viewBox="0 0 72 72">
+                <rect x="8" y="30" width="14" height="14" rx="4" fill="currentColor"></rect>
+                <rect x="26" y="30" width="14" height="14" rx="4" fill="currentColor"></rect>
+                <rect x="44" y="30" width="14" height="14" rx="4" fill="currentColor"></rect>
+                <rect x="44" y="12" width="14" height="14" rx="4" fill="currentColor"></rect>
+                <circle cx="48.5" cy="17" r="1.7" fill="#123c2c"></circle>
+                <circle cx="54.5" cy="17" r="1.7" fill="#123c2c"></circle>
+              </svg>
+            </div>
+            <div class="card-copy">
+              <span class="card-time">около 2 минут</span>
+              <h3>Змейка</h3>
+              <p>Ведите змейку к яблоку и не пересекайте хвост.</p>
+              <span class="card-best" data-best="snake">Рекорд: —</span>
+            </div>
+          </a>
+          <a class="card" href="./2048.html">
+            <div class="card-icon tone-gold" aria-hidden="true">
+              <svg viewBox="0 0 72 72">
+                <rect x="14" y="14" width="18" height="18" rx="3" fill="currentColor"></rect>
+                <rect x="38" y="14" width="18" height="18" rx="3" fill="currentColor" opacity="0.72"></rect>
+                <rect x="14" y="38" width="18" height="18" rx="3" fill="currentColor" opacity="0.72"></rect>
+                <rect x="38" y="38" width="18" height="18" rx="3" fill="currentColor" opacity="0.4"></rect>
+              </svg>
+            </div>
+            <div class="card-copy">
+              <span class="card-time">около 5 минут</span>
+              <h3>2048</h3>
+              <p>Сдвигайте плитки с одинаковым числом, пока не выпадет 2048.</p>
+              <span class="card-best" data-best="twenty">Рекорд: —</span>
+            </div>
+          </a>
+          <a class="card" href="./clicker.html">
+            <div class="card-icon tone-red" aria-hidden="true">
+              <svg viewBox="0 0 72 72">
+                <circle cx="36" cy="36" r="22" fill="currentColor"></circle>
+                <circle cx="36" cy="36" r="10" fill="#fff9ef"></circle>
+                <circle cx="36" cy="36" r="4" fill="currentColor"></circle>
+              </svg>
+            </div>
+            <div class="card-copy">
+              <span class="card-time">30 секунд</span>
+              <h3>Кликер</h3>
+              <p>Тридцать секунд на как можно больше нажатий.</p>
+              <span class="card-best" data-best="clicker">Рекорд: —</span>
+            </div>
+          </a>
+          <a class="card" href="./memory.html">
+            <div class="card-icon tone-blue" aria-hidden="true">
+              <svg viewBox="0 0 72 72">
+                <rect x="12" y="16" width="22" height="32" rx="4" fill="currentColor"></rect>
+                <rect x="38" y="24" width="22" height="32" rx="4" fill="currentColor" opacity="0.55"></rect>
+              </svg>
+            </div>
+            <div class="card-copy">
+              <span class="card-time">около 3 минут</span>
+              <h3>Память</h3>
+              <p>Найдите все пары за как можно меньше ходов.</p>
+              <span class="card-best" data-best="memory" data-unit="ходов">Рекорд: —</span>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section class="wrap section" id="popular">
+        <div class="section-head">
+          <p class="eyebrow">Сейчас открывают</p>
+          <h2>Популярное</h2>
+          <p id="popular-note">Пока открытий нет — ниже игры, с которых проще начать.</p>
+        </div>
+        <ol class="popular-list" id="popular-list">
+          <li data-game="snake" data-order="1">
+            <a href="./snake.html">
+              <span class="rank">1</span>
+              <span class="popular-name"><strong>Змейка</strong><small class="plays">ещё не открывали</small></span>
+              <span class="go">Играть</span>
+            </a>
           </li>
-          <li>
-            <span>2</span>
-            <h3>Досье остаётся у биржи</h3>
-            <p>Файл лежит в согласованном регионе, отдельно от ключей и аналитики. Срок селфи короткий. Срок AML-архива задаёт закон, обычно пять лет после конца отношений.</p>
+          <li data-game="twenty" data-order="2">
+            <a href="./2048.html">
+              <span class="rank">2</span>
+              <span class="popular-name"><strong>2048</strong><small class="plays">ещё не открывали</small></span>
+              <span class="go">Играть</span>
+            </a>
           </li>
-          <li>
-            <span>3</span>
-            <h3>Наружу уходит предикат</h3>
-            <p>Кошелёк может спросить «старше 18» или «страна из списка», если человек отметил именно это. Паспорт, адрес и причина отказа не прилагаются.</p>
+          <li data-game="memory" data-order="3">
+            <a href="./memory.html">
+              <span class="rank">3</span>
+              <span class="popular-name"><strong>Память</strong><small class="plays">ещё не открывали</small></span>
+              <span class="go">Играть</span>
+            </a>
           </li>
-          <li>
-            <span>4</span>
-            <h3>Ответ стареет</h3>
-            <p>Аттестат живёт дни или месяцы, не год. После обновления санкционного списка старое «одобрен» недействительно. Travel Rule и проверка контроля над адресом остаются у CASP.</p>
+          <li data-game="clicker" data-order="4">
+            <a href="./clicker.html">
+              <span class="rank">4</span>
+              <span class="popular-name"><strong>Кликер</strong><small class="plays">ещё не открывали</small></span>
+              <span class="go">Играть</span>
+            </a>
           </li>
         </ol>
       </section>
 
-      <section class="band" id="law">
-        <div class="wrap">
-          <div class="section-head">
-            <p class="eyebrow">03 · Право</p>
-            <h2>Можно, можно с лицензией, нельзя</h2>
-            <p>
-              До 10 июля 2027 CDD в ЕС задаёт национальный закон. Затем применяется регламент (EU) 2024/1624.
-              На 14 ноября 2026 сертифицированного EUDI Wallet нет. Это карта для counsel, не разрешение на приём документов.
-            </p>
+      <section class="wrap" id="suggest">
+        <div class="suggest-band">
+          <div>
+            <p class="eyebrow">Своя игра</p>
+            <h2>Не хватает режима?</h2>
+            <p>Опишите игру на несколько минут. Кнопка сохранит идею в этом браузере, на сервер она не уйдёт.</p>
           </div>
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Статус</th>
-                  <th>Что сюда входит</th>
-                  <th>Чего здесь нет</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><span class="tag tag-ok">Можно</span></td>
-                  <td>Процессор одной лицензированной фирмы: сбор для неё, журнал, узкий предикат по отдельному согласию.</td>
-                  <td>Своей лицензии CASP, если фирма не хранит криптоактивы и не проводит обмены.</td>
-                </tr>
-                <tr>
-                  <td><span class="tag tag-wait">С лицензией</span></td>
-                  <td>Reliance между двумя обязанными лицами, если закон страны его даёт и досье доступно надзору сразу. Квалифицированный аттестат eIDAS.</td>
-                  <td>Запуска, пока counsel не написал, что reliance вообще допустим.</td>
-                </tr>
-                <tr>
-                  <td><span class="tag tag-no">Нельзя</span></td>
-                  <td>Продажа базы, скрытая передача, общий значок на все биржи, публичная запись «этот адрес прошёл KYC», помощь тем, кого проверка отклонила.</td>
-                  <td>Исключений по формулировке «это же ZK».</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="fine">
-            ZK уместен, чтобы кошелёк проверил предикат и не увидел паспорт. Бирже он не заменяет файл, свежий скрининг, мониторинг и Travel Rule по регламенту (EU) 2023/1113.
-            DPIA повторяется, когда меняются цель, получатель или страна хранения. При высоком остаточном риске нужна консультация органа по данным.
-          </p>
+          <button class="btn btn-gold" type="button" data-suggest>Предложить игру</button>
         </div>
       </section>
 
-      <section class="wrap section" id="never">
-        <div class="section-head">
-          <p class="eyebrow">04 · Запреты</p>
-          <h2>Что с данными не делается</h2>
-        </div>
-        <ul class="stops">
-          <li>Не продаём и не сдаём базу личностей и «лиды KYC».</li>
-          <li>Не отдаём досье приложению, которое человек не видел на экране.</li>
-          <li>Не прячем согласие в оферте биржи и не отмечаем его заранее.</li>
-          <li>Не помогаем пройти проверку чужим документом или слабостью живости.</li>
-          <li>Не обещаем бирже, что ей больше не нужна своя программа AML.</li>
-          <li>Не пишем паспорт, селфи или факт допуска в публичный реестр.</li>
-          <li>Не учим модели на документах клиентов.</li>
-          <li>Не показываем приложению, что человек совпал с санкционным списком.</li>
+      <section class="wrap section" aria-labelledby="ideas-title">
+        <h2 id="ideas-title">Сохранённые идеи</h2>
+        <ul class="ideas" id="idea-list">
+          <li class="empty">Пока пусто. Идея останется только в этом браузере.</li>
         </ul>
       </section>
-
-      <section class="band" id="price">
-        <div class="wrap">
-          <div class="section-head">
-            <p class="eyebrow">05 · Деньги</p>
-            <h2>Платит фирма, не паспорт</h2>
-            <p>Цифры ниже — модельные допущения плана, не оферта и не прогноз выручки. Доля от торговой комиссии в цену не входит: она толкает отдавать больше данных.</p>
-          </div>
-          <div class="price-grid">
-            <article>
-              <p class="price">€5</p>
-              <h3>Первая проверка</h3>
-              <p>Платит обязанная фирма. Прямые затраты модели €2,30. Вклад €2,70.</p>
-            </article>
-            <article>
-              <p class="price">€1</p>
-              <h3>Повторная презентация</h3>
-              <p>Платит получатель, если на эту выдачу есть основание. Затраты модели €0,25.</p>
-            </article>
-            <article>
-              <p class="price">€30–50 тыс.</p>
-              <h3>Пилот на год</h3>
-              <p>Одна фирма: интеграция, пакет для DPIA и потолок проверок. Три таких пилота постоянные расходы не закрывают.</p>
-            </article>
-          </div>
-          <div class="meter" aria-hidden="true">
-            <div class="meter-label"><span>Вклад на 120 тыс. человек при двух повторных выдачах</span><span>€504 тыс.</span></div>
-            <div class="meter-track"><span class="meter-fill"></span><span class="meter-cost">расходы €480 тыс.</span></div>
-          </div>
-          <p class="fine">Линия постоянных расходов около €480 тыс. в год перекрывается только около 120 тысяч проверенных людей, и только если повторные выдачи законны. Дыру нельзя закрывать продажей базы.</p>
-        </div>
-      </section>
-
-      <section class="wrap section" id="pilot">
-        <div class="split">
-          <div>
-            <p class="eyebrow">06 · Пилот</p>
-            <h2>Сначала одна лицензированная фирма</h2>
-            <p>Воронка начинается с CASP одной страны. Кошелёк подключается позже и только за предикатом. Протокол без программы AML в пилот не берётся.</p>
-            <ol class="roadmap">
-              <li><strong>Бумага.</strong> DPIA, роли контролёра и вывод counsel о reliance. Паспортов ещё нет.</li>
-              <li><strong>Синтетика.</strong> Согласие, отзыв, журнал и пентест на макете.</li>
-              <li><strong>Один заказчик.</strong> Договор, регион хранения, одна принятая проверка и один отказ с человеком в контуре.</li>
-              <li><strong>Чужая фирма.</strong> Только после письменного reliance. Иначе шаг не начинается.</li>
-            </ol>
-          </div>
-          <form class="pilot-form" id="pilot-form" novalidate>
-            <h3>Заявка на разговор</h3>
-            <p class="form-note">Макет не отправляет форму и не принимает документы. После проверки полей он покажет, с чего начал бы настоящий пилот.</p>
-            <label>
-              Организация
-              <input name="org" type="text" autocomplete="organization" required maxlength="120" />
-            </label>
-            <label>
-              Страна регистрации
-              <input name="country" type="text" autocomplete="country-name" required maxlength="80" />
-            </label>
-            <label>
-              Роль
-              <select name="role" required>
-                <option value="">Выберите</option>
-                <option value="casp">Лицензированный CASP или биржа</option>
-                <option value="wallet">Кошелёк без своей AML-программы</option>
-                <option value="other">Другое</option>
-              </select>
-            </label>
-            <label>
-              Рабочая почта
-              <input name="email" type="email" autocomplete="email" required maxlength="120" />
-            </label>
-            <label class="check">
-              <input name="ack" type="checkbox" required />
-              <span>Понимаю, что это макет: документы не загружаются, заявка никуда не уходит, а боевой приём требует DPIA и локального counsel.</span>
-            </label>
-            <button class="btn btn-primary" type="submit">Показать следующий шаг</button>
-            <p class="form-error" id="form-error" role="alert"></p>
-            <div class="form-result" id="form-result" hidden></div>
-          </form>
-        </div>
-      </section>
     </main>
-
     <footer class="foot">
-      <div class="wrap foot-inner">
-        <p><strong>Контур</strong> — учебный макет продукта. Не заключение адвоката, не форма боевого согласия и не приём документов.</p>
-        <p>Самое строгое право из страны заказчика, страны человека и страны хранения применяется одновременно. Локальная проверка обязательна до пилота с настоящими данными.</p>
+      <div class="wrap">
+        <p>5 Minute Games. Рекорды и идеи хранятся в этом браузере и никуда не отправляются.</p>
       </div>
     </footer>
-    <script src="./main.js" defer></script>
+    <script type="module" src="./site.js"></script>
   </body>
 </html>

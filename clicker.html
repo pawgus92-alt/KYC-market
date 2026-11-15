@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Кликер — 5 Minute Games</title>
+    <meta name="description" content="Кликер на 30 секунд. Лучший результат раунда хранится в этом браузере." />
+    <meta name="theme-color" content="#1c1612" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="play-page">
+    <a class="skip" href="#main">К игре</a>
+    <header class="bar">
+      <div class="wrap bar-inner">
+        <a class="logo" href="./index.html">
+          <span class="logo-mark" aria-hidden="true">5</span>
+          <span class="logo-text">Minute Games</span>
+        </a>
+        <nav class="nav" aria-label="Разделы">
+          <a href="./index.html#games">Игры</a>
+          <a href="./index.html#popular">Популярное</a>
+          <button class="nav-suggest" type="button" data-suggest>Предложить игру</button>
+        </nav>
+      </div>
+    </header>
+    <main id="main" class="wrap play">
+      <section class="stage" id="stage">
+        <div class="play-head">
+          <a class="back" href="./index.html">Все игры</a>
+          <h1>Кликер</h1>
+        </div>
+        <button id="tap" class="tap" type="button">Жми</button>
+        <p id="status" class="status" role="status">Нажмите «Жми». Раунд длится 30 секунд.</p>
+        <div class="hud">
+          <p class="stat"><span>Счёт</span><strong id="score">0</strong></p>
+          <p class="stat"><span>Время</span><strong id="time">30.0</strong></p>
+          <p class="stat"><span>Рекорд</span><strong id="best">—</strong></p>
+          <button id="restart" class="btn btn-primary" type="button">Начать заново</button>
+        </div>
+        <p id="store-note" class="store-note" role="status"></p>
+      </section>
+      <aside class="side">
+        <div class="ad-slot" aria-label="Рекламный блок">
+          <p class="ad-kicker">Реклама</p>
+          <p class="ad-title">Место под баннер</p>
+          <p class="ad-size">Слот пустой · 300 × 250</p>
+        </div>
+        <div class="help">
+          <h2>Как играть</h2>
+          <p>Первое нажатие запускает тридцать секунд. Рекорд — лучший законченный раунд на этом устройстве. Пробел тоже жмёт кнопку, если фокус не в поле ввода.</p>
+        </div>
+      </aside>
+    </main>
+    <footer class="foot">
+      <div class="wrap">
+        <p>5 Minute Games. Рекорды и идеи хранятся в этом браузере и никуда не отправляются.</p>
+      </div>
+    </footer>
+    <script type="module" src="./clicker.js"></script>
+  </body>
+</html>

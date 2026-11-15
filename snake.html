@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Змейка — 5 Minute Games</title>
+    <meta name="description" content="Змейка на canvas: стрелки или WASD, кнопка «Начать заново» и рекорд в этом браузере." />
+    <meta name="theme-color" content="#1c1612" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="play-page">
+    <a class="skip" href="#main">К игре</a>
+    <header class="bar">
+      <div class="wrap bar-inner">
+        <a class="logo" href="./index.html">
+          <span class="logo-mark" aria-hidden="true">5</span>
+          <span class="logo-text">Minute Games</span>
+        </a>
+        <nav class="nav" aria-label="Разделы">
+          <a href="./index.html#games">Игры</a>
+          <a href="./index.html#popular">Популярное</a>
+          <button class="nav-suggest" type="button" data-suggest>Предложить игру</button>
+        </nav>
+      </div>
+    </header>
+    <main id="main" class="wrap play">
+      <section class="stage" id="stage">
+        <div class="play-head">
+          <a class="back" href="./index.html">Все игры</a>
+          <h1>Змейка</h1>
+        </div>
+        <canvas id="board" class="board" width="480" height="480" aria-label="Поле змейки">Поле змейки. Управляйте стрелками или кнопками под полем.</canvas>
+        <p id="status" class="status" role="status">Нажмите стрелку, WASD или кнопку на поле.</p>
+        <div class="hud">
+          <p class="stat"><span>Счёт</span><strong id="score">0</strong></p>
+          <p class="stat"><span>Рекорд</span><strong id="best">—</strong></p>
+          <button id="restart" class="btn btn-primary" type="button">Начать заново</button>
+        </div>
+        <div class="pad" id="pad">
+          <button type="button" data-dir="up" aria-label="Вверх">↑</button>
+          <button type="button" data-dir="left" aria-label="Влево">←</button>
+          <button type="button" data-dir="down" aria-label="Вниз">↓</button>
+          <button type="button" data-dir="right" aria-label="Вправо">→</button>
+        </div>
+        <p id="store-note" class="store-note" role="status"></p>
+      </section>
+      <aside class="side">
+        <div class="ad-slot" aria-label="Рекламный блок">
+          <p class="ad-kicker">Реклама</p>
+          <p class="ad-title">Место под баннер</p>
+          <p class="ad-size">Слот пустой · 300 × 250</p>
+        </div>
+        <div class="help">
+          <h2>Как играть</h2>
+          <p>Стрелки, WASD или кнопки под полем. Свайп по полю тоже поворачивает змейку. Разворот на месте не принимается: в стену и в себя партия заканчивается.</p>
+        </div>
+      </aside>
+    </main>
+    <footer class="foot">
+      <div class="wrap">
+        <p>5 Minute Games. Рекорды и идеи хранятся в этом браузере и никуда не отправляются.</p>
+      </div>
+    </footer>
+    <script type="module" src="./snake.js"></script>
+  </body>
+</html>
