@@ -106,7 +106,7 @@
                   />
                   <p class="host-kicker">С телефона и с компьютера</p>
                   <h1 class="host-title">Золотой червонец</h1>
-                  <p class="host-sub">Низкая задержка · до 1080p · чат VK или просто по имени</p>
+                  <p class="host-sub">Низкая задержка · до 1080p · чат VK или регистрация</p>
                   <button type="button" class="btn btn-primary" id="play-cta">Смотреть</button>
                 </div>
               </div>
@@ -184,10 +184,10 @@
             </form>
 
             <div class="chat-gate" id="chat-gate">
-              <p>Войдите через VK или просто укажите имя — без аккаунта.</p>
+              <p>Войдите через VK или создайте аккаунт Червонца.</p>
               <div class="gate-actions">
                 <button type="button" class="btn btn-vk" id="vk-connect">Войти через VK</button>
-                <button type="button" class="btn btn-ghost" id="guest-connect">Просто по имени</button>
+                <button type="button" class="btn btn-ghost" id="register-connect">Регистрация</button>
               </div>
             </div>
           </aside>
@@ -197,7 +197,7 @@
           <p class="eyebrow">Поток</p>
           <h2 id="about-title">Смотрите с телефона без лишней задержки</h2>
           <p class="about-lede">
-            Короткий буфер, авто-качество под сеть и чат из VK. Аукционы — на соседней вкладке.
+            Короткий буфер, авто-качество под сеть и чат через VK или регистрацию. Аукционы — на соседней вкладке.
           </p>
         </section>
       </div>
@@ -216,7 +216,7 @@
               <p class="eyebrow">Отдельный раздел</p>
               <h1 id="auctions-title">Аукционы</h1>
               <p class="about-lede">
-                Лоты идут параллельно стриму. Ставки через VK или просто по имени; просмотр на вкладке «Стрим» не прерывается.
+                Лоты идут параллельно стриму. Ставки через VK или аккаунт Червонца; просмотр на вкладке «Стрим» не прерывается.
               </p>
             </div>
             <div class="auctions-filter" role="group" aria-label="Фильтр лотов">
@@ -233,21 +233,21 @@
 
     <footer class="footer wrap">
       <p><strong>Золотой червонец</strong> · Chervonets · мобильный стрим, чат и аукционы</p>
-      <p class="footer-note">Макет интерфейса. В проде — WebRTC / LL-HLS, OAuth VK и сервер ставок. Гостевой вход — только имя.</p>
+      <p class="footer-note">Макет интерфейса. В проде — WebRTC / LL-HLS, OAuth VK, регистрация и сервер ставок.</p>
     </footer>
 
     <dialog class="vk-dialog" id="auth-dialog" aria-labelledby="auth-dialog-title">
       <div class="vk-dialog-inner">
-        <p class="chat-kicker">Вход в чат</p>
+        <p class="chat-kicker">Аккаунт</p>
         <h2 id="auth-dialog-title">Как подключиться</h2>
-        <p class="auth-lede">Два способа: через VK или просто по имени.</p>
+        <p class="auth-lede">Через VK или отдельная регистрация на Червонце.</p>
 
         <div class="auth-tabs" role="tablist" aria-label="Способ входа">
           <button type="button" class="auth-tab is-on" role="tab" id="auth-tab-vk" aria-selected="true" data-auth="vk">
             Через VK
           </button>
-          <button type="button" class="auth-tab" role="tab" id="auth-tab-guest" aria-selected="false" data-auth="guest">
-            Просто по имени
+          <button type="button" class="auth-tab" role="tab" id="auth-tab-register" aria-selected="false" data-auth="register">
+            Регистрация
           </button>
         </div>
 
@@ -283,25 +283,58 @@
           </div>
         </form>
 
-        <form id="guest-form" class="auth-pane" data-pane="guest" hidden>
-          <p class="auth-hint">Без аккаунта VK: только имя для чата и ставок.</p>
-          <label class="guest-field" for="guest-name">
-            <span>Ваше имя</span>
-            <input
-              id="guest-name"
-              name="guest-name"
-              type="text"
-              maxlength="32"
-              placeholder="Например, Алексей"
-              autocomplete="nickname"
-              required
-            />
-          </label>
-          <div class="dialog-actions">
-            <button type="button" class="btn btn-ghost" id="guest-cancel-btn">Отмена</button>
-            <button type="submit" class="btn btn-primary" id="connect-guest-btn">Войти</button>
+        <div id="register-pane" class="auth-pane" data-pane="register" hidden>
+          <div class="auth-subtabs" role="tablist" aria-label="Регистрация или вход">
+            <button type="button" class="auth-subtab is-on" data-local-mode="register" aria-selected="true">
+              Создать аккаунт
+            </button>
+            <button type="button" class="auth-subtab" data-local-mode="login" aria-selected="false">
+              Уже есть аккаунт
+            </button>
           </div>
-        </form>
+
+          <form id="register-form">
+            <p class="auth-hint">Имя, email и пароль. В демо аккаунт хранится в браузере.</p>
+            <p class="auth-error" id="register-error" hidden></p>
+            <label class="auth-field" for="reg-name">
+              <span>Имя</span>
+              <input id="reg-name" name="name" type="text" maxlength="40" autocomplete="name" required placeholder="Алексей" />
+            </label>
+            <label class="auth-field" for="reg-email">
+              <span>Email</span>
+              <input id="reg-email" name="email" type="email" autocomplete="email" required placeholder="you@mail.ru" />
+            </label>
+            <label class="auth-field" for="reg-password">
+              <span>Пароль</span>
+              <input id="reg-password" name="password" type="password" minlength="6" autocomplete="new-password" required placeholder="Не меньше 6 символов" />
+            </label>
+            <label class="auth-field" for="reg-password2">
+              <span>Повтор пароля</span>
+              <input id="reg-password2" name="password2" type="password" minlength="6" autocomplete="new-password" required placeholder="Ещё раз" />
+            </label>
+            <div class="dialog-actions">
+              <button type="button" class="btn btn-ghost" id="register-cancel-btn">Отмена</button>
+              <button type="submit" class="btn btn-primary" id="register-submit-btn">Зарегистрироваться</button>
+            </div>
+          </form>
+
+          <form id="login-form" hidden>
+            <p class="auth-hint">Войдите в аккаунт Червонца.</p>
+            <p class="auth-error" id="login-error" hidden></p>
+            <label class="auth-field" for="login-email">
+              <span>Email</span>
+              <input id="login-email" name="email" type="email" autocomplete="email" required placeholder="you@mail.ru" />
+            </label>
+            <label class="auth-field" for="login-password">
+              <span>Пароль</span>
+              <input id="login-password" name="password" type="password" minlength="6" autocomplete="current-password" required placeholder="Пароль" />
+            </label>
+            <div class="dialog-actions">
+              <button type="button" class="btn btn-ghost" id="login-cancel-btn">Отмена</button>
+              <button type="submit" class="btn btn-primary" id="login-submit-btn">Войти</button>
+            </div>
+          </form>
+        </div>
       </div>
     </dialog>
 

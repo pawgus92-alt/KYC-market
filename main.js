@@ -105,12 +105,19 @@ const charCount = document.querySelector("#char-count");
 const chatGate = document.querySelector("#chat-gate");
 const vkToggle = document.querySelector("#vk-toggle");
 const vkConnect = document.querySelector("#vk-connect");
-const guestConnect = document.querySelector("#guest-connect");
+const registerConnect = document.querySelector("#register-connect");
 const authDialog = document.querySelector("#auth-dialog");
 const vkForm = document.querySelector("#vk-form");
-const guestForm = document.querySelector("#guest-form");
-const guestNameInput = document.querySelector("#guest-name");
+const registerPane = document.querySelector("#register-pane");
+const registerForm = document.querySelector("#register-form");
+const loginForm = document.querySelector("#login-form");
+const registerError = document.querySelector("#register-error");
+const loginError = document.querySelector("#login-error");
 const authTabs = document.querySelectorAll(".auth-tab");
+const authSubtabs = document.querySelectorAll(".auth-subtab");
+
+const ACCOUNTS_KEY = "chervonets_accounts_v1";
+const SESSION_KEY = "chervonets_session_v1";
 
 const tabButtons = document.querySelectorAll(".tab");
 const panels = document.querySelectorAll(".tab-panel");
@@ -261,14 +268,63 @@ function initialsFromName(name) {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-function applyUser(user) {
+function readAccounts() {
+  try {
+    const raw = localStorage.getItem(ACCOUNTS_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeAccounts(list) {
+  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list));
+}
+
+async function hashPassword(password) {
+  if (window.crypto?.subtle) {
+    const data = new TextEncoder().encode(`chervonets:${password}`);
+    const digest = await crypto.subtle.digest("SHA-256", data);
+    return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  return btoa(`chervonets:${password}`);
+}
+
+function showAuthError(node, message) {
+  if (!node) return;
+  if (!message) {
+    node.hidden = true;
+    node.textContent = "";
+    return;
+  }
+  node.hidden = false;
+  node.textContent = message;
+}
+
+function applyUser(user, persist = true) {
   state.user = user;
-  const badge = user.provider === "vk" ? user.handle : "гость";
+  const badge =
+    user.provider === "vk" ? user.handle : user.provider === "local" ? "аккаунт" : "гость";
   chatUser.textContent = `${user.name} · ${badge}`;
   vkToggle.textContent = user.provider === "vk" ? "VK ✓" : "Выйти";
   vkToggle.setAttribute("aria-pressed", "true");
   chatGate.hidden = true;
   commentForm.hidden = false;
+  if (persist) {
+    localStorage.setItem(
+      SESSION_KEY,
+      JSON.stringify({
+        provider: user.provider,
+        key: user.key,
+        name: user.name,
+        handle: user.handle,
+        email: user.email || null,
+        color: user.color,
+        initials: user.initials,
+      })
+    );
+  }
   renderAuctions();
 }
 
@@ -277,27 +333,55 @@ function setVkUser(profileKey) {
   applyUser({ key: profileKey, provider: "vk", ...profile });
 }
 
-function setGuestUser(name) {
-  const clean = name.trim().replace(/\s+/g, " ").slice(0, 32);
-  if (!clean) return false;
+function setLocalUser(account) {
   applyUser({
-    key: "guest",
-    provider: "guest",
-    name: clean,
-    handle: "гость",
+    key: account.email,
+    provider: "local",
+    name: account.name,
+    handle: account.email,
+    email: account.email,
     color: "#e8c56b",
-    initials: initialsFromName(clean),
+    initials: initialsFromName(account.name),
   });
-  return true;
 }
 
 function clearUser() {
   state.user = null;
+  localStorage.removeItem(SESSION_KEY);
   chatUser.textContent = "Гость · просмотр";
   vkToggle.textContent = "VK";
   vkToggle.setAttribute("aria-pressed", "false");
   chatGate.hidden = false;
   commentForm.hidden = true;
+}
+
+function restoreSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return;
+    const session = JSON.parse(raw);
+    if (!session?.name || !session?.provider) return;
+    applyUser(session, false);
+  } catch {
+    localStorage.removeItem(SESSION_KEY);
+  }
+}
+
+function switchLocalMode(mode) {
+  authSubtabs.forEach((tab) => {
+    const on = tab.dataset.localMode === mode;
+    tab.classList.toggle("is-on", on);
+    tab.setAttribute("aria-selected", on ? "true" : "false");
+  });
+  const isRegister = mode === "register";
+  registerForm.hidden = !isRegister;
+  loginForm.hidden = isRegister;
+  showAuthError(registerError, "");
+  showAuthError(loginError, "");
+  queueMicrotask(() => {
+    if (isRegister) document.querySelector("#reg-name")?.focus();
+    else document.querySelector("#login-email")?.focus();
+  });
 }
 
 function switchAuthTab(mode) {
@@ -308,18 +392,48 @@ function switchAuthTab(mode) {
   });
   const showVk = mode === "vk";
   vkForm.hidden = !showVk;
-  guestForm.hidden = showVk;
+  registerPane.hidden = showVk;
   vkForm.classList.toggle("is-on", showVk);
-  guestForm.classList.toggle("is-on", !showVk);
-  if (!showVk) {
-    queueMicrotask(() => guestNameInput?.focus());
-  }
+  registerPane.classList.toggle("is-on", !showVk);
+  if (!showVk) switchLocalMode("register");
 }
 
 function openAuthDialog(mode = "vk") {
+  showAuthError(registerError, "");
+  showAuthError(loginError, "");
   switchAuthTab(mode);
   if (typeof authDialog.showModal === "function") authDialog.showModal();
   else authDialog.setAttribute("open", "");
+}
+
+async function registerAccount({ name, email, password, password2 }) {
+  const cleanName = name.trim().replace(/\s+/g, " ").slice(0, 40);
+  const cleanEmail = email.trim().toLowerCase();
+  if (!cleanName) return "Укажите имя.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) return "Укажите корректный email.";
+  if (password.length < 6) return "Пароль должен быть не короче 6 символов.";
+  if (password !== password2) return "Пароли не совпадают.";
+  const accounts = readAccounts();
+  if (accounts.some((item) => item.email === cleanEmail)) {
+    return "Этот email уже зарегистрирован. Войдите во вкладке «Уже есть аккаунт».";
+  }
+  const passwordHash = await hashPassword(password);
+  const account = { name: cleanName, email: cleanEmail, passwordHash, createdAt: Date.now() };
+  accounts.push(account);
+  writeAccounts(accounts);
+  setLocalUser(account);
+  return null;
+}
+
+async function loginAccount({ email, password }) {
+  const cleanEmail = email.trim().toLowerCase();
+  const accounts = readAccounts();
+  const account = accounts.find((item) => item.email === cleanEmail);
+  if (!account) return "Аккаунт не найден. Сначала зарегистрируйтесь.";
+  const passwordHash = await hashPassword(password);
+  if (account.passwordHash !== passwordHash) return "Неверный пароль.";
+  setLocalUser(account);
+  return null;
 }
 
 function switchTab(tab) {
@@ -498,6 +612,11 @@ function bindPlayer() {
 }
 
 function bindChat() {
+  function closeAuthDialog() {
+    if (typeof authDialog.close === "function") authDialog.close("cancel");
+    else authDialog.removeAttribute("open");
+  }
+
   vkToggle.addEventListener("click", () => {
     if (state.user) {
       clearUser();
@@ -506,16 +625,14 @@ function bindChat() {
     openAuthDialog("vk");
   });
   vkConnect.addEventListener("click", () => openAuthDialog("vk"));
-  guestConnect.addEventListener("click", () => openAuthDialog("guest"));
+  registerConnect.addEventListener("click", () => openAuthDialog("register"));
 
   authTabs.forEach((tab) => {
     tab.addEventListener("click", () => switchAuthTab(tab.dataset.auth));
   });
-
-  function closeAuthDialog() {
-    if (typeof authDialog.close === "function") authDialog.close("cancel");
-    else authDialog.removeAttribute("open");
-  }
+  authSubtabs.forEach((tab) => {
+    tab.addEventListener("click", () => switchLocalMode(tab.dataset.localMode));
+  });
 
   document.querySelector("#connect-vk-btn").addEventListener("click", () => {
     const selected = vkForm.querySelector('input[name="profile"]:checked');
@@ -523,14 +640,36 @@ function bindChat() {
     closeAuthDialog();
   });
 
-  document.querySelector("#guest-cancel-btn").addEventListener("click", closeAuthDialog);
+  document.querySelector("#register-cancel-btn").addEventListener("click", closeAuthDialog);
+  document.querySelector("#login-cancel-btn").addEventListener("click", closeAuthDialog);
 
-  guestForm.addEventListener("submit", (event) => {
+  registerForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-    if (!setGuestUser(guestNameInput.value)) {
-      guestNameInput.focus();
+    const error = await registerAccount({
+      name: document.querySelector("#reg-name").value,
+      email: document.querySelector("#reg-email").value,
+      password: document.querySelector("#reg-password").value,
+      password2: document.querySelector("#reg-password2").value,
+    });
+    if (error) {
+      showAuthError(registerError, error);
       return;
     }
+    registerForm.reset();
+    closeAuthDialog();
+  });
+
+  loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const error = await loginAccount({
+      email: document.querySelector("#login-email").value,
+      password: document.querySelector("#login-password").value,
+    });
+    if (error) {
+      showAuthError(loginError, error);
+      return;
+    }
+    loginForm.reset();
     closeAuthDialog();
   });
 
@@ -541,7 +680,7 @@ function bindChat() {
   commentForm.addEventListener("submit", (event) => {
     event.preventDefault();
     if (!state.user) {
-      openAuthDialog("guest");
+      openAuthDialog("register");
       return;
     }
     const text = commentInput.value.trim();
@@ -557,6 +696,7 @@ function bindChat() {
     charCount.textContent = "0 / 280";
   });
 
+  restoreSession();
   seedChat();
   setInterval(randomChatTick, 12000);
 }
