@@ -33,7 +33,7 @@ const SEED_COMMENTS = [
 const AUCTIONS = [
   {
     id: "lot-1",
-    title: "Пластинка «Северный Лотвид»",
+    title: "Пластинка «Северный Лотлайв»",
     status: "live",
     bid: 4200,
     bids: 18,
@@ -65,7 +65,7 @@ const AUCTIONS = [
   },
   {
     id: "lot-5",
-    title: "Мерч «Лотвид» — худи",
+    title: "Мерч «Лотлайв» — худи",
     status: "live",
     bid: 3100,
     bids: 24,
