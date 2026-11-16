@@ -2,303 +2,266 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Контур — повторный статус проверки без лишних данных</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Эфир — стрим и аукционы</title>
     <meta
       name="description"
-      content="Контур повторяет статус KYC между приложениями, которым человек сам разрешил выдачу. Досье остаётся у обязанного лица. База личностей не продаётся."
+      content="Эфир — смотрите стрим с телефона с низкой задержкой, комментируйте через ВКонтакте и участвуйте в аукционах."
     />
-    <meta name="theme-color" content="#164e4a" />
+    <meta name="theme-color" content="#0b1520" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,520;7..72,680&family=Manrope:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <a class="skip" href="#main">К содержанию</a>
-    <header class="top">
-      <div class="wrap top-inner">
-        <a class="brand" href="#top">
+    <a class="skip" href="#app">К приложению</a>
+
+    <header class="chrome">
+      <div class="chrome-inner">
+        <a class="brand" href="#app" id="top">
           <span class="brand-mark" aria-hidden="true"></span>
-          Контур
+          <span class="brand-text">Эфир</span>
         </a>
-        <nav class="nav" aria-label="Разделы">
-          <a href="#release">Кому что</a>
-          <a href="#how">Как устроено</a>
-          <a href="#law">Границы</a>
-          <a href="#price">Цена</a>
-          <a href="#pilot">Пилот</a>
+
+        <nav class="tabs" role="tablist" aria-label="Разделы">
+          <button
+            type="button"
+            class="tab is-active"
+            role="tab"
+            id="tab-stream"
+            aria-selected="true"
+            aria-controls="panel-stream"
+            data-tab="stream"
+          >
+            Эфир
+          </button>
+          <button
+            type="button"
+            class="tab"
+            role="tab"
+            id="tab-auctions"
+            aria-selected="false"
+            aria-controls="panel-auctions"
+            data-tab="auctions"
+          >
+            Аукционы
+          </button>
         </nav>
-        <p class="pilot-flag">Макет. Документы не принимаем</p>
+
+        <div class="chrome-meta" id="chrome-meta" aria-live="polite">
+          <span class="live-pill" id="live-pill">
+            <span class="live-dot" aria-hidden="true"></span>
+            В эфире
+          </span>
+          <span class="latency-badge is-good" id="latency-badge" title="Оценка задержки">~0.8 с</span>
+          <span class="viewers" id="viewers">1 284</span>
+        </div>
+
+        <button type="button" class="btn btn-vk" id="vk-toggle" aria-pressed="false">
+          VK
+        </button>
       </div>
     </header>
 
-    <main id="main">
-      <section class="hero wrap" id="top">
-        <div class="hero-copy">
-          <p class="eyebrow">Повторное использование статуса · одна страна · один заказчик</p>
-          <h1>Один раз проверить. Каждому отдать только нужное.</h1>
-          <p class="lede">
-            Контур хранит проверку у обязанного лица и по отдельному решению человека отдаёт наружу узкий ответ.
-            Биржа получает своё досье. Кошелёк получает «да» или «нет» на один вопрос. База паспортов не продаётся и в публичный реестр не пишется.
-          </p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="#release">Посмотреть выдачу</a>
-            <a class="btn btn-ghost" href="#pilot">Запросить пилот</a>
-          </div>
-          <ul class="hero-points">
-            <li>Согласие на лишнюю выдачу не спрятано в оферте биржи.</li>
-            <li>Значок «KYC пройден» биржу от AML не освобождает.</li>
-            <li>До первого настоящего паспорта нужны DPIA и локальный counsel.</li>
-          </ul>
-        </div>
-        <aside class="receipt" aria-label="Пример квитанции выдачи">
-          <p class="receipt-kicker">Квитанция · только этот браузер</p>
-          <h2>Северная биржа</h2>
-          <p class="receipt-role">Обязанное лицо · основание: правовая обязанность AML</p>
-          <ul class="receipt-list">
-            <li><span>Документ и живость</span><strong>в досье биржи</strong></li>
-            <li><span>Страна проживания</span><strong>в досье биржи</strong></li>
-            <li><span>Санкции и PEP</span><strong>MLRO биржи</strong></li>
-            <li><span>Паспорт кошельку</span><strong>не отдаётся</strong></li>
-            <li><span>Причина «санкции» приложению</span><strong>не отдаётся</strong></li>
-          </ul>
-          <p class="receipt-foot">Отказ останавливает счёт. Архив, который закон велит хранить, кнопка не стирает.</p>
-        </aside>
-      </section>
+    <div id="app">
+      <div
+        class="tab-panel is-active"
+        id="panel-stream"
+        role="tabpanel"
+        aria-labelledby="tab-stream"
+        data-panel="stream"
+      >
+        <main class="stage" id="stage">
+          <section class="player" aria-label="Прямой эфир">
+            <div class="player-frame" id="player-frame">
+              <video
+                id="stream-video"
+                class="stream-video"
+                playsinline
+                webkit-playsinline
+                preload="metadata"
+                controlslist="nodownload"
+                aria-label="Видео эфира"
+              ></video>
 
-      <section class="band" id="release">
-        <div class="wrap">
-          <div class="section-head">
-            <p class="eyebrow">01 · Выдача</p>
-            <h2>Кому что можно отдать</h2>
-            <p>
-              Это рабочий макет согласия. Выбор остаётся на этой странице, на сервер ничего не уходит, документы загрузить нельзя.
-              Смените получателя и посмотрите, что именно он увидит.
+              <div class="player-overlay" id="player-overlay">
+                <div class="overlay-copy">
+                  <p class="host-kicker">С телефона и с компьютера</p>
+                  <h1 class="host-title">Эфир</h1>
+                  <p class="host-sub">Низкая задержка · до 1080p · чат VK</p>
+                  <button type="button" class="btn btn-primary" id="play-cta">Смотреть</button>
+                </div>
+              </div>
+
+              <div class="buffer-toast" id="buffer-toast" hidden>Подгрузка…</div>
+
+              <div class="player-bar">
+                <div class="player-bar-left">
+                  <button type="button" class="icon-btn" id="play-btn" aria-label="Пауза">❚❚</button>
+                  <span class="rec" aria-hidden="true"></span>
+                  <span class="stream-title" id="stream-title">Студия «Север»</span>
+                </div>
+                <div class="player-bar-mid" aria-label="Состояние потока">
+                  <span class="stat" id="stat-quality">1080p</span>
+                  <span class="stat" id="stat-bitrate">— Мбит/с</span>
+                  <span class="stat" id="stat-health">буфер 0.6 с</span>
+                </div>
+                <div class="player-bar-right">
+                  <label class="quality-label" for="quality-select">
+                    <span class="sr-only">Качество</span>
+                    <select id="quality-select" class="quality-select" aria-label="Качество видео">
+                      <option value="auto">Авто</option>
+                      <option value="1080" selected>1080p</option>
+                      <option value="720">720p</option>
+                      <option value="480">480p</option>
+                    </select>
+                  </label>
+                  <button
+                    type="button"
+                    class="icon-btn is-on"
+                    id="ll-btn"
+                    aria-pressed="true"
+                    title="Короткий буфер и догон края эфира"
+                  >
+                    Low lat
+                  </button>
+                  <button type="button" class="icon-btn" id="mute-btn" aria-pressed="false" aria-label="Звук">
+                    Звук
+                  </button>
+                  <button type="button" class="icon-btn" id="fs-btn" aria-label="На весь экран">Экран</button>
+                </div>
+              </div>
+            </div>
+            <p class="stage-note">
+              На телефоне видео идёт на весь экран по ширине, с playsinline — без принудительного fullscreen iOS.
             </p>
-          </div>
+          </section>
 
-          <div class="desk">
-            <fieldset class="party-set">
-              <legend>Кто просит статус</legend>
-              <label class="party">
-                <input type="radio" name="party" value="casp" checked />
-                <span>
-                  <strong>Биржа и CASP</strong>
-                  <small>Обязанное лицо. Нужно досье, не значок.</small>
-                </span>
-              </label>
-              <label class="party">
-                <input type="radio" name="party" value="wallet" />
-                <span>
-                  <strong>Кошелёк</strong>
-                  <small>Предикат по отдельному согласию.</small>
-                </span>
-              </label>
-              <label class="party">
-                <input type="radio" name="party" value="open" />
-                <span>
-                  <strong>Нерегулируемое приложение</strong>
-                  <small>Значок вместо программы AML не продаётся.</small>
-                </span>
-              </label>
-            </fieldset>
+          <aside class="chat" aria-label="Комментарии ВКонтакте">
+            <header class="chat-head">
+              <div>
+                <p class="chat-kicker">ВКонтакте</p>
+                <h2>Комментарии</h2>
+              </div>
+              <p class="chat-user" id="chat-user">Гость · просмотр</p>
+            </header>
 
-            <div class="request" id="request" aria-live="polite"></div>
-          </div>
+            <div class="chat-feed" id="chat-feed" role="log" aria-live="polite" aria-relevant="additions"></div>
 
-          <div class="journal-wrap">
-            <h3>Журнал этой вкладки</h3>
-            <ol class="journal" id="journal">
-              <li class="empty">Решений пока нет.</li>
-            </ol>
-          </div>
-        </div>
-      </section>
+            <form class="chat-compose" id="comment-form" hidden>
+              <label class="sr-only" for="comment-input">Ваш комментарий</label>
+              <textarea
+                id="comment-input"
+                name="comment"
+                rows="2"
+                maxlength="280"
+                placeholder="Комментарий…"
+                enterkeyhint="send"
+                required
+              ></textarea>
+              <div class="compose-row">
+                <span class="char-count" id="char-count">0 / 280</span>
+                <button type="submit" class="btn btn-primary">Отправить</button>
+              </div>
+            </form>
 
-      <section class="wrap section" id="how">
-        <div class="section-head">
-          <p class="eyebrow">02 · Контур</p>
-          <h2>Как устроен пилот</h2>
-          <p>Одна страна, один лицензированный заказчик, политика приёма написана его MLRO. Контур считает ответ и ведёт журнал. Программу AML он на себя не забирает.</p>
-        </div>
-        <ol class="steps">
-          <li>
-            <span>1</span>
-            <h3>Проверка у названного провайдера</h3>
-            <p>Документ и живость делает готовый провайдер по договору. Свою модель распознавания паспортов пилот не обучает и чужие селфи для этого не копит.</p>
-          </li>
-          <li>
-            <span>2</span>
-            <h3>Досье остаётся у биржи</h3>
-            <p>Файл лежит в согласованном регионе, отдельно от ключей и аналитики. Срок селфи короткий. Срок AML-архива задаёт закон, обычно пять лет после конца отношений.</p>
-          </li>
-          <li>
-            <span>3</span>
-            <h3>Наружу уходит предикат</h3>
-            <p>Кошелёк может спросить «старше 18» или «страна из списка», если человек отметил именно это. Паспорт, адрес и причина отказа не прилагаются.</p>
-          </li>
-          <li>
-            <span>4</span>
-            <h3>Ответ стареет</h3>
-            <p>Аттестат живёт дни или месяцы, не год. После обновления санкционного списка старое «одобрен» недействительно. Travel Rule и проверка контроля над адресом остаются у CASP.</p>
-          </li>
-        </ol>
-      </section>
+            <div class="chat-gate" id="chat-gate">
+              <p>Писать в эфир можно после входа через ВКонтакте.</p>
+              <button type="button" class="btn btn-vk" id="vk-connect">Войти через VK</button>
+            </div>
+          </aside>
+        </main>
 
-      <section class="band" id="law">
-        <div class="wrap">
-          <div class="section-head">
-            <p class="eyebrow">03 · Право</p>
-            <h2>Можно, можно с лицензией, нельзя</h2>
-            <p>
-              До 10 июля 2027 CDD в ЕС задаёт национальный закон. Затем применяется регламент (EU) 2024/1624.
-              На 14 ноября 2026 сертифицированного EUDI Wallet нет. Это карта для counsel, не разрешение на приём документов.
-            </p>
-          </div>
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Статус</th>
-                  <th>Что сюда входит</th>
-                  <th>Чего здесь нет</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><span class="tag tag-ok">Можно</span></td>
-                  <td>Процессор одной лицензированной фирмы: сбор для неё, журнал, узкий предикат по отдельному согласию.</td>
-                  <td>Своей лицензии CASP, если фирма не хранит криптоактивы и не проводит обмены.</td>
-                </tr>
-                <tr>
-                  <td><span class="tag tag-wait">С лицензией</span></td>
-                  <td>Reliance между двумя обязанными лицами, если закон страны его даёт и досье доступно надзору сразу. Квалифицированный аттестат eIDAS.</td>
-                  <td>Запуска, пока counsel не написал, что reliance вообще допустим.</td>
-                </tr>
-                <tr>
-                  <td><span class="tag tag-no">Нельзя</span></td>
-                  <td>Продажа базы, скрытая передача, общий значок на все биржи, публичная запись «этот адрес прошёл KYC», помощь тем, кого проверка отклонила.</td>
-                  <td>Исключений по формулировке «это же ZK».</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="fine">
-            ZK уместен, чтобы кошелёк проверил предикат и не увидел паспорт. Бирже он не заменяет файл, свежий скрининг, мониторинг и Travel Rule по регламенту (EU) 2023/1113.
-            DPIA повторяется, когда меняются цель, получатель или страна хранения. При высоком остаточном риске нужна консультация органа по данным.
+        <section class="about wrap" aria-labelledby="about-title">
+          <p class="eyebrow">Поток</p>
+          <h2 id="about-title">Смотрите с телефона без лишней задержки</h2>
+          <p class="about-lede">
+            Короткий буфер, авто-качество под сеть и чат из VK. Аукционы — на соседней вкладке.
           </p>
-        </div>
-      </section>
-
-      <section class="wrap section" id="never">
-        <div class="section-head">
-          <p class="eyebrow">04 · Запреты</p>
-          <h2>Что с данными не делается</h2>
-        </div>
-        <ul class="stops">
-          <li>Не продаём и не сдаём базу личностей и «лиды KYC».</li>
-          <li>Не отдаём досье приложению, которое человек не видел на экране.</li>
-          <li>Не прячем согласие в оферте биржи и не отмечаем его заранее.</li>
-          <li>Не помогаем пройти проверку чужим документом или слабостью живости.</li>
-          <li>Не обещаем бирже, что ей больше не нужна своя программа AML.</li>
-          <li>Не пишем паспорт, селфи или факт допуска в публичный реестр.</li>
-          <li>Не учим модели на документах клиентов.</li>
-          <li>Не показываем приложению, что человек совпал с санкционным списком.</li>
-        </ul>
-      </section>
-
-      <section class="band" id="price">
-        <div class="wrap">
-          <div class="section-head">
-            <p class="eyebrow">05 · Деньги</p>
-            <h2>Платит фирма, не паспорт</h2>
-            <p>Цифры ниже — модельные допущения плана, не оферта и не прогноз выручки. Доля от торговой комиссии в цену не входит: она толкает отдавать больше данных.</p>
-          </div>
-          <div class="price-grid">
-            <article>
-              <p class="price">€5</p>
-              <h3>Первая проверка</h3>
-              <p>Платит обязанная фирма. Прямые затраты модели €2,30. Вклад €2,70.</p>
-            </article>
-            <article>
-              <p class="price">€1</p>
-              <h3>Повторная презентация</h3>
-              <p>Платит получатель, если на эту выдачу есть основание. Затраты модели €0,25.</p>
-            </article>
-            <article>
-              <p class="price">€30–50 тыс.</p>
-              <h3>Пилот на год</h3>
-              <p>Одна фирма: интеграция, пакет для DPIA и потолок проверок. Три таких пилота постоянные расходы не закрывают.</p>
-            </article>
-          </div>
-          <div class="meter" aria-hidden="true">
-            <div class="meter-label"><span>Вклад на 120 тыс. человек при двух повторных выдачах</span><span>€504 тыс.</span></div>
-            <div class="meter-track"><span class="meter-fill"></span><span class="meter-cost">расходы €480 тыс.</span></div>
-          </div>
-          <p class="fine">Линия постоянных расходов около €480 тыс. в год перекрывается только около 120 тысяч проверенных людей, и только если повторные выдачи законны. Дыру нельзя закрывать продажей базы.</p>
-        </div>
-      </section>
-
-      <section class="wrap section" id="pilot">
-        <div class="split">
-          <div>
-            <p class="eyebrow">06 · Пилот</p>
-            <h2>Сначала одна лицензированная фирма</h2>
-            <p>Воронка начинается с CASP одной страны. Кошелёк подключается позже и только за предикатом. Протокол без программы AML в пилот не берётся.</p>
-            <ol class="roadmap">
-              <li><strong>Бумага.</strong> DPIA, роли контролёра и вывод counsel о reliance. Паспортов ещё нет.</li>
-              <li><strong>Синтетика.</strong> Согласие, отзыв, журнал и пентест на макете.</li>
-              <li><strong>Один заказчик.</strong> Договор, регион хранения, одна принятая проверка и один отказ с человеком в контуре.</li>
-              <li><strong>Чужая фирма.</strong> Только после письменного reliance. Иначе шаг не начинается.</li>
-            </ol>
-          </div>
-          <form class="pilot-form" id="pilot-form" novalidate>
-            <h3>Заявка на разговор</h3>
-            <p class="form-note">Макет не отправляет форму и не принимает документы. После проверки полей он покажет, с чего начал бы настоящий пилот.</p>
-            <label>
-              Организация
-              <input name="org" type="text" autocomplete="organization" required maxlength="120" />
-            </label>
-            <label>
-              Страна регистрации
-              <input name="country" type="text" autocomplete="country-name" required maxlength="80" />
-            </label>
-            <label>
-              Роль
-              <select name="role" required>
-                <option value="">Выберите</option>
-                <option value="casp">Лицензированный CASP или биржа</option>
-                <option value="wallet">Кошелёк без своей AML-программы</option>
-                <option value="other">Другое</option>
-              </select>
-            </label>
-            <label>
-              Рабочая почта
-              <input name="email" type="email" autocomplete="email" required maxlength="120" />
-            </label>
-            <label class="check">
-              <input name="ack" type="checkbox" required />
-              <span>Понимаю, что это макет: документы не загружаются, заявка никуда не уходит, а боевой приём требует DPIA и локального counsel.</span>
-            </label>
-            <button class="btn btn-primary" type="submit">Показать следующий шаг</button>
-            <p class="form-error" id="form-error" role="alert"></p>
-            <div class="form-result" id="form-result" hidden></div>
-          </form>
-        </div>
-      </section>
-    </main>
-
-    <footer class="foot">
-      <div class="wrap foot-inner">
-        <p><strong>Контур</strong> — учебный макет продукта. Не заключение адвоката, не форма боевого согласия и не приём документов.</p>
-        <p>Самое строгое право из страны заказчика, страны человека и страны хранения применяется одновременно. Локальная проверка обязательна до пилота с настоящими данными.</p>
+        </section>
       </div>
+
+      <div
+        class="tab-panel"
+        id="panel-auctions"
+        role="tabpanel"
+        aria-labelledby="tab-auctions"
+        data-panel="auctions"
+        hidden
+      >
+        <section class="auctions wrap" aria-labelledby="auctions-title">
+          <header class="auctions-head">
+            <div>
+              <p class="eyebrow">Отдельный раздел</p>
+              <h1 id="auctions-title">Аукционы</h1>
+              <p class="about-lede">
+                Лоты идут параллельно эфиру. Ставки со своего VK-профиля; просмотр эфира при этом не прерывается на другой вкладке.
+              </p>
+            </div>
+            <div class="auctions-filter" role="group" aria-label="Фильтр лотов">
+              <button type="button" class="chip is-on" data-filter="all">Все</button>
+              <button type="button" class="chip" data-filter="live">Идут</button>
+              <button type="button" class="chip" data-filter="soon">Скоро</button>
+            </div>
+          </header>
+
+          <div class="auction-grid" id="auction-grid"></div>
+        </section>
+      </div>
+    </div>
+
+    <footer class="footer wrap">
+      <p><strong>Эфир</strong> · мобильный стрим, VK-комментарии и аукционы</p>
+      <p class="footer-note">Макет интерфейса. В проде — WebRTC / LL-HLS, OAuth VK и сервер ставок.</p>
     </footer>
+
+    <dialog class="vk-dialog" id="vk-dialog" aria-labelledby="vk-dialog-title">
+      <form method="dialog" class="vk-dialog-inner">
+        <p class="chat-kicker">ВКонтакте</p>
+        <h2 id="vk-dialog-title">Подключение аккаунта</h2>
+        <p>В бою — OAuth ВКонтакте. Сейчас выберите демо-профиль.</p>
+        <fieldset class="vk-profiles">
+          <legend class="sr-only">Профиль</legend>
+          <label class="vk-profile">
+            <input type="radio" name="profile" value="anna" checked />
+            <span>
+              <strong>Анна К.</strong>
+              <small>@anna.north</small>
+            </span>
+          </label>
+          <label class="vk-profile">
+            <input type="radio" name="profile" value="igor" />
+            <span>
+              <strong>Игорь М.</strong>
+              <small>@igor.live</small>
+            </span>
+          </label>
+          <label class="vk-profile">
+            <input type="radio" name="profile" value="mira" />
+            <span>
+              <strong>Мира С.</strong>
+              <small>@mira.stream</small>
+            </span>
+          </label>
+        </fieldset>
+        <div class="dialog-actions">
+          <button type="submit" class="btn btn-ghost" value="cancel">Отмена</button>
+          <button type="submit" class="btn btn-vk" value="connect">Подключить</button>
+        </div>
+      </form>
+    </dialog>
+
     <script src="./main.js" defer></script>
   </body>
 </html>
