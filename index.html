@@ -30,7 +30,7 @@
     <header class="chrome">
       <div class="chrome-inner">
         <a class="brand" href="#app" id="top">
-          <span class="brand-mark" aria-hidden="true"></span>
+          <img class="brand-mark" src="./chervonets.svg" width="28" height="28" alt="" />
           <span class="brand-text">Червонец</span>
         </a>
 
@@ -97,9 +97,16 @@
 
               <div class="player-overlay" id="player-overlay">
                 <div class="overlay-copy">
+                  <img
+                    class="host-coin"
+                    src="./chervonets.svg"
+                    width="96"
+                    height="96"
+                    alt="Золотой червонец"
+                  />
                   <p class="host-kicker">С телефона и с компьютера</p>
                   <h1 class="host-title">Золотой червонец</h1>
-                  <p class="host-sub">Низкая задержка · до 1080p · чат VK</p>
+                  <p class="host-sub">Низкая задержка · до 1080p · чат VK или просто по имени</p>
                   <button type="button" class="btn btn-primary" id="play-cta">Смотреть</button>
                 </div>
               </div>
@@ -177,8 +184,11 @@
             </form>
 
             <div class="chat-gate" id="chat-gate">
-              <p>Писать в чат можно после входа через ВКонтакте.</p>
-              <button type="button" class="btn btn-vk" id="vk-connect">Войти через VK</button>
+              <p>Войдите через VK или просто укажите имя — без аккаунта.</p>
+              <div class="gate-actions">
+                <button type="button" class="btn btn-vk" id="vk-connect">Войти через VK</button>
+                <button type="button" class="btn btn-ghost" id="guest-connect">Просто по имени</button>
+              </div>
             </div>
           </aside>
         </main>
@@ -206,7 +216,7 @@
               <p class="eyebrow">Отдельный раздел</p>
               <h1 id="auctions-title">Аукционы</h1>
               <p class="about-lede">
-                Лоты идут параллельно стриму. Ставки со своего VK-профиля; просмотр на вкладке «Стрим» при этом не прерывается.
+                Лоты идут параллельно стриму. Ставки через VK или просто по имени; просмотр на вкладке «Стрим» не прерывается.
               </p>
             </div>
             <div class="auctions-filter" role="group" aria-label="Фильтр лотов">
@@ -222,44 +232,77 @@
     </div>
 
     <footer class="footer wrap">
-      <p><strong>Золотой червонец</strong> · Chervonets · мобильный стрим, VK-комментарии и аукционы</p>
-      <p class="footer-note">Макет интерфейса. В проде — WebRTC / LL-HLS, OAuth VK и сервер ставок.</p>
+      <p><strong>Золотой червонец</strong> · Chervonets · мобильный стрим, чат и аукционы</p>
+      <p class="footer-note">Макет интерфейса. В проде — WebRTC / LL-HLS, OAuth VK и сервер ставок. Гостевой вход — только имя.</p>
     </footer>
 
-    <dialog class="vk-dialog" id="vk-dialog" aria-labelledby="vk-dialog-title">
-      <form method="dialog" class="vk-dialog-inner">
-        <p class="chat-kicker">ВКонтакте</p>
-        <h2 id="vk-dialog-title">Подключение аккаунта</h2>
-        <p>В бою — OAuth ВКонтакте. Сейчас выберите демо-профиль.</p>
-        <fieldset class="vk-profiles">
-          <legend class="sr-only">Профиль</legend>
-          <label class="vk-profile">
-            <input type="radio" name="profile" value="anna" checked />
-            <span>
-              <strong>Анна К.</strong>
-              <small>@anna.north</small>
-            </span>
-          </label>
-          <label class="vk-profile">
-            <input type="radio" name="profile" value="igor" />
-            <span>
-              <strong>Игорь М.</strong>
-              <small>@igor.live</small>
-            </span>
-          </label>
-          <label class="vk-profile">
-            <input type="radio" name="profile" value="mira" />
-            <span>
-              <strong>Мира С.</strong>
-              <small>@mira.stream</small>
-            </span>
-          </label>
-        </fieldset>
-        <div class="dialog-actions">
-          <button type="submit" class="btn btn-ghost" value="cancel">Отмена</button>
-          <button type="submit" class="btn btn-vk" value="connect">Подключить</button>
+    <dialog class="vk-dialog" id="auth-dialog" aria-labelledby="auth-dialog-title">
+      <div class="vk-dialog-inner">
+        <p class="chat-kicker">Вход в чат</p>
+        <h2 id="auth-dialog-title">Как подключиться</h2>
+        <p class="auth-lede">Два способа: через VK или просто по имени.</p>
+
+        <div class="auth-tabs" role="tablist" aria-label="Способ входа">
+          <button type="button" class="auth-tab is-on" role="tab" id="auth-tab-vk" aria-selected="true" data-auth="vk">
+            Через VK
+          </button>
+          <button type="button" class="auth-tab" role="tab" id="auth-tab-guest" aria-selected="false" data-auth="guest">
+            Просто по имени
+          </button>
         </div>
-      </form>
+
+        <form method="dialog" id="vk-form" class="auth-pane is-on" data-pane="vk">
+          <p class="auth-hint">В проде — OAuth ВКонтакте. Сейчас выберите демо-профиль.</p>
+          <fieldset class="vk-profiles">
+            <legend class="sr-only">Профиль VK</legend>
+            <label class="vk-profile">
+              <input type="radio" name="profile" value="anna" checked />
+              <span>
+                <strong>Анна К.</strong>
+                <small>@anna.north</small>
+              </span>
+            </label>
+            <label class="vk-profile">
+              <input type="radio" name="profile" value="igor" />
+              <span>
+                <strong>Игорь М.</strong>
+                <small>@igor.live</small>
+              </span>
+            </label>
+            <label class="vk-profile">
+              <input type="radio" name="profile" value="mira" />
+              <span>
+                <strong>Мира С.</strong>
+                <small>@mira.stream</small>
+              </span>
+            </label>
+          </fieldset>
+          <div class="dialog-actions">
+            <button type="submit" class="btn btn-ghost" value="cancel">Отмена</button>
+            <button type="button" class="btn btn-vk" id="connect-vk-btn">Подключить VK</button>
+          </div>
+        </form>
+
+        <form id="guest-form" class="auth-pane" data-pane="guest" hidden>
+          <p class="auth-hint">Без аккаунта VK: только имя для чата и ставок.</p>
+          <label class="guest-field" for="guest-name">
+            <span>Ваше имя</span>
+            <input
+              id="guest-name"
+              name="guest-name"
+              type="text"
+              maxlength="32"
+              placeholder="Например, Алексей"
+              autocomplete="nickname"
+              required
+            />
+          </label>
+          <div class="dialog-actions">
+            <button type="button" class="btn btn-ghost" id="guest-cancel-btn">Отмена</button>
+            <button type="submit" class="btn btn-primary" id="connect-guest-btn">Войти</button>
+          </div>
+        </form>
+      </div>
     </dialog>
 
     <script src="./main.js" defer></script>

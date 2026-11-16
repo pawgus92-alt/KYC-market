@@ -105,7 +105,12 @@ const charCount = document.querySelector("#char-count");
 const chatGate = document.querySelector("#chat-gate");
 const vkToggle = document.querySelector("#vk-toggle");
 const vkConnect = document.querySelector("#vk-connect");
-const vkDialog = document.querySelector("#vk-dialog");
+const guestConnect = document.querySelector("#guest-connect");
+const authDialog = document.querySelector("#auth-dialog");
+const vkForm = document.querySelector("#vk-form");
+const guestForm = document.querySelector("#guest-form");
+const guestNameInput = document.querySelector("#guest-name");
+const authTabs = document.querySelectorAll(".auth-tab");
 
 const tabButtons = document.querySelectorAll(".tab");
 const panels = document.querySelectorAll(".tab-panel");
@@ -249,26 +254,72 @@ function appendComment({ name, text, color, initials, self = false }) {
   chatFeed.scrollTop = chatFeed.scrollHeight;
 }
 
-function setUser(profileKey) {
-  const profile = PROFILES[profileKey];
-  state.user = { key: profileKey, ...profile };
-  chatUser.textContent = `${profile.name} · ${profile.handle}`;
-  vkToggle.textContent = "VK ✓";
+function initialsFromName(name) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+
+function applyUser(user) {
+  state.user = user;
+  const badge = user.provider === "vk" ? user.handle : "гость";
+  chatUser.textContent = `${user.name} · ${badge}`;
+  vkToggle.textContent = user.provider === "vk" ? "VK ✓" : "Выйти";
   vkToggle.setAttribute("aria-pressed", "true");
   chatGate.hidden = true;
   commentForm.hidden = false;
   renderAuctions();
 }
 
-function openVkDialog() {
-  if (typeof vkDialog.showModal === "function") vkDialog.showModal();
-  else vkDialog.setAttribute("open", "");
+function setVkUser(profileKey) {
+  const profile = PROFILES[profileKey];
+  applyUser({ key: profileKey, provider: "vk", ...profile });
 }
 
-function onVkDialogClose() {
-  if (vkDialog.returnValue !== "connect") return;
-  const selected = vkDialog.querySelector('input[name="profile"]:checked');
-  if (selected) setUser(selected.value);
+function setGuestUser(name) {
+  const clean = name.trim().replace(/\s+/g, " ").slice(0, 32);
+  if (!clean) return false;
+  applyUser({
+    key: "guest",
+    provider: "guest",
+    name: clean,
+    handle: "гость",
+    color: "#e8c56b",
+    initials: initialsFromName(clean),
+  });
+  return true;
+}
+
+function clearUser() {
+  state.user = null;
+  chatUser.textContent = "Гость · просмотр";
+  vkToggle.textContent = "VK";
+  vkToggle.setAttribute("aria-pressed", "false");
+  chatGate.hidden = false;
+  commentForm.hidden = true;
+}
+
+function switchAuthTab(mode) {
+  authTabs.forEach((tab) => {
+    const on = tab.dataset.auth === mode;
+    tab.classList.toggle("is-on", on);
+    tab.setAttribute("aria-selected", on ? "true" : "false");
+  });
+  const showVk = mode === "vk";
+  vkForm.hidden = !showVk;
+  guestForm.hidden = showVk;
+  vkForm.classList.toggle("is-on", showVk);
+  guestForm.classList.toggle("is-on", !showVk);
+  if (!showVk) {
+    queueMicrotask(() => guestNameInput?.focus());
+  }
+}
+
+function openAuthDialog(mode = "vk") {
+  switchAuthTab(mode);
+  if (typeof authDialog.showModal === "function") authDialog.showModal();
+  else authDialog.setAttribute("open", "");
 }
 
 function switchTab(tab) {
@@ -322,7 +373,7 @@ function renderAuctions() {
 
 function placeBid(lotId) {
   if (!state.user) {
-    openVkDialog();
+    openAuthDialog("vk");
     return;
   }
   const lot = state.lots.find((item) => item.id === lotId);
@@ -449,18 +500,39 @@ function bindPlayer() {
 function bindChat() {
   vkToggle.addEventListener("click", () => {
     if (state.user) {
-      state.user = null;
-      chatUser.textContent = "Гость · просмотр";
-      vkToggle.textContent = "VK";
-      vkToggle.setAttribute("aria-pressed", "false");
-      chatGate.hidden = false;
-      commentForm.hidden = true;
+      clearUser();
       return;
     }
-    openVkDialog();
+    openAuthDialog("vk");
   });
-  vkConnect.addEventListener("click", openVkDialog);
-  vkDialog.addEventListener("close", onVkDialogClose);
+  vkConnect.addEventListener("click", () => openAuthDialog("vk"));
+  guestConnect.addEventListener("click", () => openAuthDialog("guest"));
+
+  authTabs.forEach((tab) => {
+    tab.addEventListener("click", () => switchAuthTab(tab.dataset.auth));
+  });
+
+  function closeAuthDialog() {
+    if (typeof authDialog.close === "function") authDialog.close("cancel");
+    else authDialog.removeAttribute("open");
+  }
+
+  document.querySelector("#connect-vk-btn").addEventListener("click", () => {
+    const selected = vkForm.querySelector('input[name="profile"]:checked');
+    if (selected) setVkUser(selected.value);
+    closeAuthDialog();
+  });
+
+  document.querySelector("#guest-cancel-btn").addEventListener("click", closeAuthDialog);
+
+  guestForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!setGuestUser(guestNameInput.value)) {
+      guestNameInput.focus();
+      return;
+    }
+    closeAuthDialog();
+  });
 
   commentInput.addEventListener("input", () => {
     charCount.textContent = `${commentInput.value.length} / 280`;
@@ -469,7 +541,7 @@ function bindChat() {
   commentForm.addEventListener("submit", (event) => {
     event.preventDefault();
     if (!state.user) {
-      openVkDialog();
+      openAuthDialog("guest");
       return;
     }
     const text = commentInput.value.trim();

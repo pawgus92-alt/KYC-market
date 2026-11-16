@@ -101,25 +101,13 @@ button, select, textarea { font: inherit; color: inherit; }
   flex: none;
 }
 .brand-mark {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background:
-    radial-gradient(circle at 35% 30%, #fff3c4, transparent 45%),
-    linear-gradient(145deg, #f0d27a, #b8862d 55%, #8a6419);
-  border: 1px solid rgba(255, 228, 160, 0.45);
-  position: relative;
+  display: block;
   flex: none;
-  box-shadow: inset 0 0 0 2px rgba(90, 60, 10, 0.25);
-}
-.brand-mark::after {
-  content: "";
-  position: absolute;
-  left: 9px;
-  top: 7px;
-  border-style: solid;
-  border-width: 6px 0 6px 9px;
-  border-color: transparent transparent transparent #3a2a08;
+  object-fit: cover;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
 }
 
 .tabs {
@@ -269,6 +257,14 @@ button, select, textarea { font: inherit; color: inherit; }
   font-size: 0.7rem;
   font-weight: 600;
   color: var(--accent);
+}
+.host-coin {
+  width: clamp(72px, 18vw, 104px);
+  height: auto;
+  margin: 0 auto 0.85rem;
+  display: block;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.45));
+  animation: coin-in 0.7s ease both;
 }
 .host-title {
   font-size: clamp(2rem, 7vw, 3.6rem);
@@ -474,7 +470,13 @@ button, select, textarea { font: inherit; color: inherit; }
   gap: 10px;
 }
 .char-count { color: var(--muted); font-size: 0.8rem; }
-.chat-gate p { color: var(--muted); font-size: 0.9rem; }
+.chat-gate p { color: var(--muted); font-size: 0.9rem; margin: 0 0 10px; }
+.gate-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.gate-actions .btn { flex: 1 1 140px; }
 
 .about {
   margin-top: 40px;
@@ -541,6 +543,7 @@ button, select, textarea { font: inherit; color: inherit; }
 .lot-visual {
   aspect-ratio: 16 / 10;
   background:
+    url("./chervonets.svg") center 58% / 42% no-repeat,
     linear-gradient(145deg, rgba(61, 222, 168, 0.2), transparent 45%),
     linear-gradient(320deg, rgba(232, 197, 107, 0.22), transparent 40%),
     #122231;
@@ -617,10 +620,62 @@ button, select, textarea { font: inherit; color: inherit; }
   backdrop-filter: blur(6px);
 }
 .vk-dialog-inner { padding: 20px; }
+.auth-lede {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  margin-bottom: 14px;
+}
+.auth-tab {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 0.55rem 0.6rem;
+  border-radius: 9px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 40px;
+}
+.auth-tab.is-on {
+  background: rgba(61, 222, 168, 0.14);
+  color: var(--accent);
+}
+.auth-pane[hidden] { display: none !important; }
+.auth-hint {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+.guest-field {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 16px;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+.guest-field input {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--ink);
+  padding: 12px;
+  font-size: 16px;
+}
 .vk-profiles {
   border: 0;
   padding: 0;
-  margin: 14px 0;
+  margin: 8px 0 14px;
   display: grid;
   gap: 8px;
 }
@@ -658,6 +713,10 @@ button, select, textarea { font: inherit; color: inherit; }
 @keyframes flash {
   from { filter: brightness(1.35); }
   to { filter: brightness(1); }
+}
+@keyframes coin-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.92); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* Mobile-first stream layout */

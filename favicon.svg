@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <circle cx="16" cy="16" r="15" fill="#0d1c28"/>
-  <circle cx="16" cy="16" r="12" fill="url(#gold)"/>
-  <circle cx="16" cy="16" r="12" fill="none" stroke="#fff3c4" stroke-opacity="0.35" stroke-width="1"/>
-  <path d="M13 11.2v9.6l8-4.8-8-4.8z" fill="#3a2a08"/>
   <defs>
-    <linearGradient id="gold" x1="6" y1="5" x2="26" y2="27" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#f0d27a"/>
-      <stop offset="0.55" stop-color="#c9a227"/>
-      <stop offset="1" stop-color="#8a6419"/>
-    </linearGradient>
+    <radialGradient id="gold" cx="38%" cy="32%" r="70%">
+      <stop offset="0%" stop-color="#fff1b8"/>
+      <stop offset="45%" stop-color="#e8c15a"/>
+      <stop offset="100%" stop-color="#8a6419"/>
+    </radialGradient>
   </defs>
+  <circle cx="16" cy="16" r="15" fill="#0d1c28"/>
+  <circle cx="16" cy="16" r="12.2" fill="url(#gold)"/>
+  <circle cx="16" cy="16" r="12.2" fill="none" stroke="#fff3c4" stroke-opacity="0.4" stroke-width="1"/>
+  <text x="16" y="20.5" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="700" fill="#3a2a08">Ч</text>
 </svg>
