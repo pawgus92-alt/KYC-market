@@ -33,7 +33,7 @@ const SEED_COMMENTS = [
 const AUCTIONS = [
   {
     id: "lot-1",
-    title: "Пластинка «Северный эфир»",
+    title: "Пластинка «Северный Лотвид»",
     status: "live",
     bid: 4200,
     bids: 18,
@@ -65,7 +65,7 @@ const AUCTIONS = [
   },
   {
     id: "lot-5",
-    title: "Мерч «Эфир» — худи",
+    title: "Мерч «Лотвид» — худи",
     status: "live",
     bid: 3100,
     bids: 24,
@@ -311,7 +311,7 @@ function renderAuctions() {
               <button type="button" class="btn btn-primary" data-bid="${lot.id}" ${live ? "" : "disabled"}>
                 ${live ? "Ставка +100 ₽" : "Ожидание"}
               </button>
-              <button type="button" class="btn btn-ghost" data-watch="${lot.id}">К эфиру</button>
+              <button type="button" class="btn btn-ghost" data-watch="${lot.id}">К стриму</button>
             </div>
           </div>
         </article>

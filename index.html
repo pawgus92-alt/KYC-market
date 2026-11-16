@@ -9,10 +9,10 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>Эфир — стрим и аукционы</title>
+    <title>Лотвид — стрим и аукционы</title>
     <meta
       name="description"
-      content="Эфир — смотрите стрим с телефона с низкой задержкой, комментируйте через ВКонтакте и участвуйте в аукционах."
+      content="Лотвид (Lotvid) — смотрите стрим с телефона с низкой задержкой, комментируйте через ВКонтакте и участвуйте в аукционах."
     />
     <meta name="theme-color" content="#0b1520" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
@@ -31,7 +31,7 @@
       <div class="chrome-inner">
         <a class="brand" href="#app" id="top">
           <span class="brand-mark" aria-hidden="true"></span>
-          <span class="brand-text">Эфир</span>
+          <span class="brand-text">Лотвид</span>
         </a>
 
         <nav class="tabs" role="tablist" aria-label="Разделы">
@@ -44,7 +44,7 @@
             aria-controls="panel-stream"
             data-tab="stream"
           >
-            Эфир
+            Стрим
           </button>
           <button
             type="button"
@@ -83,7 +83,7 @@
         data-panel="stream"
       >
         <main class="stage" id="stage">
-          <section class="player" aria-label="Прямой эфир">
+          <section class="player" aria-label="Прямой стрим">
             <div class="player-frame" id="player-frame">
               <video
                 id="stream-video"
@@ -92,13 +92,13 @@
                 webkit-playsinline
                 preload="metadata"
                 controlslist="nodownload"
-                aria-label="Видео эфира"
+                aria-label="Видео стрима Лотвид"
               ></video>
 
               <div class="player-overlay" id="player-overlay">
                 <div class="overlay-copy">
                   <p class="host-kicker">С телефона и с компьютера</p>
-                  <h1 class="host-title">Эфир</h1>
+                  <h1 class="host-title">Лотвид</h1>
                   <p class="host-sub">Низкая задержка · до 1080p · чат VK</p>
                   <button type="button" class="btn btn-primary" id="play-cta">Смотреть</button>
                 </div>
@@ -132,7 +132,7 @@
                     class="icon-btn is-on"
                     id="ll-btn"
                     aria-pressed="true"
-                    title="Короткий буфер и догон края эфира"
+                    title="Короткий буфер и догон края стрима"
                   >
                     Low lat
                   </button>
@@ -177,7 +177,7 @@
             </form>
 
             <div class="chat-gate" id="chat-gate">
-              <p>Писать в эфир можно после входа через ВКонтакте.</p>
+              <p>Писать в чат можно после входа через ВКонтакте.</p>
               <button type="button" class="btn btn-vk" id="vk-connect">Войти через VK</button>
             </div>
           </aside>
@@ -206,7 +206,7 @@
               <p class="eyebrow">Отдельный раздел</p>
               <h1 id="auctions-title">Аукционы</h1>
               <p class="about-lede">
-                Лоты идут параллельно эфиру. Ставки со своего VK-профиля; просмотр эфира при этом не прерывается на другой вкладке.
+                Лоты идут параллельно стриму. Ставки со своего VK-профиля; просмотр на вкладке «Стрим» при этом не прерывается.
               </p>
             </div>
             <div class="auctions-filter" role="group" aria-label="Фильтр лотов">
@@ -222,7 +222,7 @@
     </div>
 
     <footer class="footer wrap">
-      <p><strong>Эфир</strong> · мобильный стрим, VK-комментарии и аукционы</p>
+      <p><strong>Лотвид</strong> · Lotvid · мобильный стрим, VK-комментарии и аукционы</p>
       <p class="footer-note">Макет интерфейса. В проде — WebRTC / LL-HLS, OAuth VK и сервер ставок.</p>
     </footer>
 
