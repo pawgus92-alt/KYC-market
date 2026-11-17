@@ -35,7 +35,7 @@ const TIPS = [
     id: "t2",
     topic: "privacy",
     title: "Не включайте запись «на всякий случай»",
-    body: "Разрешайте запись только когда готовы, что эфир попадёт в архив. Без вашего подтверждения запись не стартует.",
+    body: "Разрешение на запись ставится только при подключении. Без галочки при входе запись не стартует.",
   },
   {
     id: "t3",
@@ -198,10 +198,7 @@ const filterChips = document.querySelectorAll("[data-filter]");
 const tipFilterChips = document.querySelectorAll("[data-tip-filter]");
 const tipsGrid = document.querySelector("#tips-grid");
 const archiveList = document.querySelector("#archive-list");
-const consentDialog = document.querySelector("#consent-dialog");
-const consentForm = document.querySelector("#consent-form");
-const consentCheck = document.querySelector("#consent-check");
-const consentRecordBtn = document.querySelector("#consent-record-btn");
+const connectRecordConsent = document.querySelector("#connect-record-consent");
 const endStreamBtn = document.querySelector("#end-stream-btn");
 const recIndicator = document.querySelector("#rec-indicator");
 const recBanner = document.querySelector("#rec-banner");
@@ -399,7 +396,53 @@ function showAuthError(node, message) {
   node.textContent = message;
 }
 
-function applyUser(user, persist = true) {
+const CONNECT_RECORD_INTENT_KEY = "chervonets_connect_record_intent";
+
+function wantsRecordOnConnect() {
+  if (connectRecordConsent?.checked) return true;
+  try {
+    return sessionStorage.getItem(CONNECT_RECORD_INTENT_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function rememberConnectRecordIntent() {
+  try {
+    sessionStorage.setItem(
+      CONNECT_RECORD_INTENT_KEY,
+      connectRecordConsent?.checked ? "1" : "0"
+    );
+  } catch {
+    /* ignore */
+  }
+}
+
+function clearConnectRecordIntent() {
+  try {
+    sessionStorage.removeItem(CONNECT_RECORD_INTENT_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+function applyConnectRecordingConsent(fromConnect) {
+  if (fromConnect && wantsRecordOnConnect()) {
+    grantRecordConsent();
+    clearConnectRecordIntent();
+    return;
+  }
+  if (fromConnect) {
+    revokeRecordConsent();
+    clearConnectRecordIntent();
+    return;
+  }
+  // Restored session: keep prior consent only if it was granted at connect.
+  restoreConsent();
+  updateRecordingUI();
+}
+
+function applyUser(user, persist = true, { fromConnect = false } = {}) {
   state.user = user;
   const badge =
     user.provider === "vk" ? user.handle : user.provider === "local" ? "аккаунт" : "гость";
@@ -423,12 +466,14 @@ function applyUser(user, persist = true) {
       })
     );
   }
+  if (fromConnect) applyConnectRecordingConsent(true);
   renderAuctions();
+  updateRecordingUI();
 }
 
-function setVkUser(user) {
+function setVkUser(user, { fromConnect = true } = {}) {
   if (!user || typeof user !== "object") return;
-  applyUser({ provider: "vk", ...user });
+  applyUser({ provider: "vk", ...user }, true, { fromConnect });
 }
 
 function showVkError(message) {
@@ -456,6 +501,7 @@ async function completeVkLogin(user) {
 
 async function startRealVkLogin() {
   showVkError("");
+  rememberConnectRecordIntent();
   const { connectVkReal, resolveVkAppId } = await import("./vk-auth.js");
   const appId = await resolveVkAppId();
   if (!appId) {
@@ -532,16 +578,20 @@ async function refreshVkAuthUi() {
   }).catch(() => {});
 }
 
-function setLocalUser(account) {
-  applyUser({
-    key: account.email,
-    provider: "local",
-    name: account.name,
-    handle: account.email,
-    email: account.email,
-    color: "#e8c56b",
-    initials: initialsFromName(account.name),
-  });
+function setLocalUser(account, { fromConnect = true } = {}) {
+  applyUser(
+    {
+      key: account.email,
+      provider: "local",
+      name: account.name,
+      handle: account.email,
+      email: account.email,
+      color: "#e8c56b",
+      initials: initialsFromName(account.name),
+    },
+    true,
+    { fromConnect }
+  );
 }
 
 function clearUser() {
@@ -550,11 +600,13 @@ function clearUser() {
   import("./vk-auth.js")
     .then(({ clearVkSession }) => clearVkSession())
     .catch(() => {});
+  revokeRecordConsent();
   chatUser.textContent = "Гость · просмотр";
   vkToggle.textContent = "VK";
   vkToggle.setAttribute("aria-pressed", "false");
   chatGate.hidden = false;
   commentForm.hidden = true;
+  if (connectRecordConsent) connectRecordConsent.checked = false;
 }
 
 function restoreSession() {
@@ -563,7 +615,8 @@ function restoreSession() {
     if (!raw) return;
     const session = JSON.parse(raw);
     if (!session?.name || !session?.provider) return;
-    applyUser(session, false);
+    applyUser(session, false, { fromConnect: false });
+    applyConnectRecordingConsent(false);
   } catch {
     localStorage.removeItem(SESSION_KEY);
   }
@@ -683,6 +736,7 @@ function writeArchiveMeta(list) {
 function updateRecordingUI() {
   const recording = state.recording;
   const consented = state.recordConsent;
+  const connected = Boolean(state.user);
   recIndicator.classList.toggle("is-off", !recording);
   recIndicator.classList.toggle("is-on", recording);
   recIndicator.title = recording ? "Идёт запись" : "Запись выключена";
@@ -690,33 +744,25 @@ function updateRecordingUI() {
   endStreamBtn.disabled = !consented;
   if (recording) {
     recBannerText.textContent = "Идёт запись — после эфира файл уйдёт в архив";
-    consentRecordBtn.disabled = true;
-    consentRecordBtn.textContent = "Запись разрешена";
-    consentNote.textContent = "Согласие получено. Завершите эфир, чтобы сохранить видео в архив.";
+    consentNote.textContent = "Согласие получено при подключении. Завершите эфир, чтобы сохранить видео в архив.";
   } else if (consented) {
-    recBannerText.textContent = "Согласие есть — запись стартует с эфиром, завершение сохранит архив";
-    consentRecordBtn.disabled = true;
-    consentRecordBtn.textContent = "Согласие получено";
+    recBannerText.textContent = "Согласие при подключении есть — запись стартует с эфиром";
     consentNote.textContent =
-      "Запись начнётся при воспроизведении. «Завершить эфир» сохранит видео в архив. Отозвать согласие — во вкладке «Защита».";
+      "Запись начнётся при воспроизведении. «Завершить эфир» сохранит видео в архив. Отозвать — во вкладке «Защита» или выйдя из аккаунта.";
+  } else if (connected) {
+    recBannerText.textContent = "Запись выключена — при входе не было разрешения";
+    consentNote.textContent =
+      "Чтобы разрешить запись, выйдите и подключитесь снова с галочкой «Разрешаю запись стрима».";
   } else {
-    recBannerText.textContent = "Запись не ведётся — нужно согласие участника";
-    consentRecordBtn.disabled = false;
-    consentRecordBtn.textContent = "Разрешить запись";
+    recBannerText.textContent = "Запись не ведётся — подключитесь с разрешением";
     consentNote.textContent =
-      "Видео стрима пишется только после подтверждения участника. Без согласия запись не стартует.";
+      "Разрешение на запись запрашивается только при подключении (VK или аккаунт Червонца).";
   }
-}
-
-function openConsentDialog() {
-  consentCheck.checked = false;
-  if (typeof consentDialog.showModal === "function") consentDialog.showModal();
-  else consentDialog.setAttribute("open", "");
 }
 
 function grantRecordConsent() {
   state.recordConsent = true;
-  localStorage.setItem(CONSENT_KEY, JSON.stringify({ grantedAt: Date.now() }));
+  localStorage.setItem(CONSENT_KEY, JSON.stringify({ grantedAt: Date.now(), source: "connect" }));
   updateRecordingUI();
   if (state.playing && !state.recording) startRecording();
 }
@@ -867,7 +913,13 @@ function stopRecording({ save }) {
 
 async function endStreamToArchive() {
   if (!state.recordConsent) {
-    openConsentDialog();
+    if (!state.user) {
+      openAuthDialog("vk");
+      connectRecordConsent?.focus();
+    } else if (consentNote) {
+      consentNote.textContent =
+        "Запись не разрешена при подключении. Выйдите и войдите снова с галочкой «Разрешаю запись стрима».";
+    }
     return;
   }
   if (state.recording) await stopRecording({ save: true });
@@ -889,7 +941,7 @@ function renderArchive() {
   if (!list.length) {
     archiveList.innerHTML = `
       <div class="empty-state">
-        <p>Архив пуст. Разрешите запись на вкладке «Стрим», проведите эфир и нажмите «Завершить эфир → архив».</p>
+        <p>Архив пуст. Подключитесь с разрешением на запись, проведите эфир и нажмите «Завершить эфир → архив».</p>
       </div>`;
     return;
   }
@@ -1085,23 +1137,8 @@ function bindPlayer() {
   playCta.addEventListener("click", startPlayback);
   playBtn.addEventListener("click", togglePlay);
   playerFrame.addEventListener("dblclick", togglePlay);
-  consentRecordBtn.addEventListener("click", openConsentDialog);
   endStreamBtn.addEventListener("click", () => {
     endStreamToArchive();
-  });
-
-  function closeConsentDialog() {
-    if (typeof consentDialog.close === "function") consentDialog.close("cancel");
-    else consentDialog.removeAttribute("open");
-  }
-
-  document.querySelector("#consent-allow-btn").addEventListener("click", () => {
-    if (!consentCheck.checked) {
-      consentCheck.focus();
-      return;
-    }
-    grantRecordConsent();
-    closeConsentDialog();
   });
 
   muteBtn.addEventListener("click", () => {
@@ -1146,7 +1183,6 @@ function bindPlayer() {
     state.autoQuality = true;
   }
 
-  restoreConsent();
   updateRecordingUI();
   applySource(true);
   setInterval(chaseLiveEdge, 900);
@@ -1203,6 +1239,7 @@ function bindChat() {
 
   document.querySelector("#vk-login-redirect")?.addEventListener("click", async () => {
     try {
+      rememberConnectRecordIntent();
       const { resolveVkAppId, startVkOAuthRedirect } = await import("./vk-auth.js");
       const appId = await resolveVkAppId();
       if (!appId) {
@@ -1292,7 +1329,10 @@ function bindChat() {
     .then(({ loadVkSession }) => {
       if (state.user) return;
       const vkUser = loadVkSession();
-      if (vkUser) applyUser(vkUser, false);
+      if (vkUser) {
+        applyUser(vkUser, false, { fromConnect: false });
+        applyConnectRecordingConsent(false);
+      }
     })
     .catch(() => {});
   seedChat();

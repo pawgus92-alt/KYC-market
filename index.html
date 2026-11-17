@@ -31,7 +31,7 @@
       <div class="chrome-inner">
         <a class="brand" href="#app" id="top">
           <img class="brand-mark" src="./chervonets.jpg" width="28" height="28" alt="" />
-          <span class="brand-text">Червонец</span>
+          <span class="brand-text">Золотой червонец</span>
         </a>
 
         <nav class="tabs" role="tablist" aria-label="Разделы">
@@ -89,7 +89,7 @@
                   />
                   <p class="host-kicker">С телефона и с компьютера</p>
                   <h1 class="host-title">Золотой червонец</h1>
-                  <p class="host-sub">Запись только после вашего согласия · архив после эфира</p>
+                  <p class="host-sub">Запись — только при подключении · архив после эфира</p>
                   <button type="button" class="btn btn-primary" id="play-cta">Смотреть</button>
                 </div>
               </div>
@@ -138,10 +138,9 @@
               </div>
             </div>
             <div class="stream-actions">
-              <button type="button" class="btn btn-primary" id="consent-record-btn">Разрешить запись</button>
               <button type="button" class="btn btn-ghost" id="end-stream-btn" disabled>Завершить эфир → архив</button>
               <p class="stage-note" id="consent-note">
-                Видео стрима пишется только после подтверждения участника. Без согласия запись не стартует.
+                Разрешение на запись запрашивается только при подключении (VK или аккаунт Червонца).
               </p>
             </div>
           </section>
@@ -188,7 +187,7 @@
           <p class="eyebrow">Поток</p>
           <h2 id="about-title">Смотрите без лишней задержки — и с контролем записи</h2>
           <p class="about-lede">
-            Короткий буфер и чат. Запись стрима — только после вашего согласия; готовое видео — во вкладке «Архив». Советы и защита данных — рядом.
+            Короткий буфер и чат. Разрешение на запись — только при подключении к Червонцу; готовое видео — во вкладке «Архив».
           </p>
         </section>
       </div>
@@ -274,7 +273,10 @@
           <div class="privacy-grid">
             <article class="privacy-card">
               <h2>Согласие на запись</h2>
-              <p>Стрим пишется только после кнопки «Разрешить запись». Без подтверждения участника запись не стартует.</p>
+              <p>
+                Разрешение на запись спрашивается только при подключении аккаунта. Без галочки при входе запись не
+                стартует; отдельной кнопки на стриме нет.
+              </p>
             </article>
             <article class="privacy-card">
               <h2>Архив по завершении</h2>
@@ -320,7 +322,7 @@
     <footer class="footer wrap">
       <p><strong>Золотой червонец</strong> · стрим по согласию · архив · советы · защита данных</p>
       <p class="footer-note">
-        Запись эфира — только после подтверждения участника. После завершения — в архив.
+        Запись эфира — только с разрешения при подключении. После завершения — в архив.
         <a href="#privacy">Политика и контроль данных</a>
       </p>
     </footer>
@@ -329,7 +331,7 @@
       <div class="vk-dialog-inner">
         <p class="chat-kicker">Аккаунт</p>
         <h2 id="auth-dialog-title">Как подключиться</h2>
-        <p class="auth-lede">Через VK или отдельная регистрация на Червонце.</p>
+        <p class="auth-lede">Через VK или регистрация на Червонце. Разрешение на запись — только здесь, при подключении.</p>
 
         <div class="auth-tabs" role="tablist" aria-label="Способ входа">
           <button type="button" class="auth-tab is-on" role="tab" id="auth-tab-vk" aria-selected="true" data-auth="vk">
@@ -339,6 +341,11 @@
             Регистрация
           </button>
         </div>
+
+        <label class="consent-check connect-record-consent" for="connect-record-consent">
+          <input id="connect-record-consent" name="recordConsent" type="checkbox" />
+          <span>Разрешаю запись стрима Червонца и сохранение в архив после эфира.</span>
+        </label>
 
         <div id="vk-form" class="auth-pane is-on" data-pane="vk">
           <p class="auth-hint" id="vk-auth-hint">
@@ -430,29 +437,6 @@
           </form>
         </div>
       </div>
-    </dialog>
-
-    <dialog class="vk-dialog" id="consent-dialog" aria-labelledby="consent-dialog-title">
-      <form method="dialog" class="vk-dialog-inner" id="consent-form">
-        <p class="chat-kicker">Запись эфира</p>
-        <h2 id="consent-dialog-title">Подтвердите запись стрима</h2>
-        <p class="auth-lede">
-          Видео начнёт писаться только после вашего «Разрешаю». По окончании эфира запись сохранится в архив. Без согласия запись не ведётся.
-        </p>
-        <ul class="consent-list">
-          <li>Можно отозвать согласие во вкладке «Защита», пока запись не начата или после остановки.</li>
-          <li>В демо файл остаётся в этом браузере; в проде — защищённое хранилище с доступом по роли.</li>
-          <li>Чат и ставки не подменяют согласие на видеозапись.</li>
-        </ul>
-        <label class="consent-check" for="consent-check">
-          <input id="consent-check" name="consent" type="checkbox" required />
-          <span>Я участник и разрешаю запись этого стрима с последующим сохранением в архив.</span>
-        </label>
-        <div class="dialog-actions">
-          <button type="submit" class="btn btn-ghost" value="cancel">Не сейчас</button>
-          <button type="button" class="btn btn-primary" id="consent-allow-btn">Разрешаю запись</button>
-        </div>
-      </form>
     </dialog>
 
     <script src="./main.js" defer></script>
