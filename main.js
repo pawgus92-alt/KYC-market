@@ -428,9 +428,72 @@ function applyUser(user, persist = true) {
   renderAuctions();
 }
 
-function setVkUser(profileKey) {
-  const profile = PROFILES[profileKey];
-  applyUser({ key: profileKey, provider: "vk", ...profile });
+function setVkUser(profileKeyOrUser) {
+  if (profileKeyOrUser && typeof profileKeyOrUser === "object") {
+    applyUser({ provider: "vk", ...profileKeyOrUser });
+    return;
+  }
+  const profile = PROFILES[profileKeyOrUser];
+  if (!profile) return;
+  applyUser({ key: profileKeyOrUser, provider: "vk", ...profile });
+}
+
+function showVkError(message) {
+  const node = document.querySelector("#vk-auth-error");
+  if (!node) return;
+  if (!message) {
+    node.hidden = true;
+    node.textContent = "";
+    return;
+  }
+  node.hidden = false;
+  node.textContent = message;
+}
+
+async function refreshVkAuthUi() {
+  const setup = document.querySelector("#vk-setup");
+  const live = document.querySelector("#vk-live");
+  const steps = document.querySelector("#vk-setup-steps");
+  const input = document.querySelector("#vk-app-id-input");
+  const hint = document.querySelector("#vk-auth-hint");
+  const { resolveVkAppId, getRedirectUrl, buildVkAppSetupHelp, renderVkOneTap } = await import("./vk-auth.js");
+  const appId = await resolveVkAppId();
+  const help = buildVkAppSetupHelp(getRedirectUrl());
+  if (steps) {
+    steps.innerHTML = help.steps.map((step) => `<li>${step}</li>`).join("");
+  }
+  if (input && !input.value) input.value = appId || "";
+  const createLink = document.querySelector("#vk-create-app-link");
+  if (createLink) createLink.href = help.createAppUrl;
+
+  if (!appId) {
+    setup.hidden = false;
+    live.hidden = true;
+    hint.textContent =
+      "Чтобы включить настоящий вход VK ID, создайте приложение и укажите Application ID. Redirect URL должен совпадать с адресом сайта.";
+    return;
+  }
+
+  setup.hidden = true;
+  live.hidden = false;
+  hint.textContent = `VK ID подключён (App ID ${appId}). Войдите кнопкой ниже. Redirect: ${help.redirectUrl}`;
+  showVkError("");
+  try {
+    await renderVkOneTap(document.querySelector("#vk-onetap"), {
+      appId,
+      appName: "Золотой червонец",
+      onSuccess: (user) => {
+        setVkUser(user);
+        if (typeof authDialog.close === "function") authDialog.close();
+        else authDialog.removeAttribute("open");
+      },
+      onError: (err) => {
+        showVkError(err?.message || String(err) || "Ошибка VK ID");
+      },
+    });
+  } catch (err) {
+    showVkError(err?.message || "Не удалось отрисовать VK One Tap");
+  }
 }
 
 function setLocalUser(account) {
@@ -501,7 +564,9 @@ function switchAuthTab(mode) {
 function openAuthDialog(mode = "vk") {
   showAuthError(registerError, "");
   showAuthError(loginError, "");
+  showVkError("");
   switchAuthTab(mode);
+  if (mode === "vk") queueMicrotask(() => refreshVkAuthUi());
   if (typeof authDialog.showModal === "function") authDialog.showModal();
   else authDialog.setAttribute("open", "");
 }
@@ -1059,7 +1124,10 @@ function bindChat() {
   registerConnect.addEventListener("click", () => openAuthDialog("register"));
 
   authTabs.forEach((tab) => {
-    tab.addEventListener("click", () => switchAuthTab(tab.dataset.auth));
+    tab.addEventListener("click", () => {
+      switchAuthTab(tab.dataset.auth);
+      if (tab.dataset.auth === "vk") refreshVkAuthUi();
+    });
   });
   authSubtabs.forEach((tab) => {
     tab.addEventListener("click", () => switchLocalMode(tab.dataset.localMode));
@@ -1069,6 +1137,44 @@ function bindChat() {
     const selected = vkForm.querySelector('input[name="profile"]:checked');
     if (selected) setVkUser(selected.value);
     closeAuthDialog();
+  });
+
+  document.querySelector("#vk-dialog-close")?.addEventListener("click", closeAuthDialog);
+  document.querySelector("#vk-cancel-btn")?.addEventListener("click", closeAuthDialog);
+
+  document.querySelector("#vk-save-app-id")?.addEventListener("click", async () => {
+    const { setStoredVkAppId } = await import("./vk-auth.js");
+    const value = document.querySelector("#vk-app-id-input")?.value || "";
+    if (!String(value).trim()) {
+      showVkError("Укажите Application ID из кабинета VK.");
+      return;
+    }
+    setStoredVkAppId(value);
+    showVkError("");
+    await refreshVkAuthUi();
+  });
+
+  document.querySelector("#vk-change-app-id")?.addEventListener("click", async () => {
+    document.querySelector("#vk-setup").hidden = false;
+    document.querySelector("#vk-live").hidden = true;
+  });
+
+  document.querySelector("#vk-login-redirect")?.addEventListener("click", async () => {
+    try {
+      const { resolveVkAppId, startVkLoginRedirect } = await import("./vk-auth.js");
+      const appId = await resolveVkAppId();
+      if (!appId) {
+        showVkError("Сначала сохраните VK Application ID.");
+        return;
+      }
+      await startVkLoginRedirect(appId);
+    } catch (err) {
+      showVkError(err?.message || "Не удалось открыть вход VK");
+    }
+  });
+
+  document.querySelector("#privacy-vk-setup")?.addEventListener("click", () => {
+    openAuthDialog("vk");
   });
 
   document.querySelector("#register-cancel-btn").addEventListener("click", closeAuthDialog);
@@ -1197,8 +1303,20 @@ function bindArchiveTipsPrivacy() {
   renderArchive();
 }
 
+async function bootstrapVkRedirect() {
+  try {
+    const { consumeVkRedirectIfPresent } = await import("./vk-auth.js");
+    const user = await consumeVkRedirectIfPresent();
+    if (user) setVkUser(user);
+  } catch (err) {
+    showVkError(err?.message || "Ошибка возврата из VK");
+    openAuthDialog("vk");
+  }
+}
+
 bindPlayer();
 bindChat();
 bindTabs();
 bindAuctions();
 bindArchiveTipsPrivacy();
+bootstrapVkRedirect();
