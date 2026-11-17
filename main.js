@@ -24,10 +24,85 @@ const PROFILES = {
 
 const SEED_COMMENTS = [
   { name: "Лена В.", text: "Картинка чёткая с телефона 🔥", color: "#ff9ec7", initials: "ЛВ" },
-  { name: "Павел", text: "Задержка реально маленькая", color: "#b8a7ff", initials: "П" },
+  { name: "Павел", text: "Запись только после согласия — правильно", color: "#b8a7ff", initials: "П" },
   { name: "Юля", text: "Когда следующий лот?", color: "#ffe08a", initials: "Ю" },
-  { name: "Кирилл", text: "VK-чат удобнее отдельного аккаунта", color: "#8ad7c2", initials: "К" },
+  { name: "Кирилл", text: "В советах проверили безопасность данных", color: "#8ad7c2", initials: "К" },
   { name: "Оля Р.", text: "На 4G держится без рывков", color: "#ffa08a", initials: "ОР" },
+];
+
+const TIPS = [
+  {
+    id: "t1",
+    topic: "stream",
+    title: "Стабильный эфир на мобильном",
+    body: "Закройте фоновые приложения, держите заряд выше 30% и по возможности сидите ближе к роутеру. Авто-качество лучше ручного 1080p на слабом 4G.",
+  },
+  {
+    id: "t2",
+    topic: "privacy",
+    title: "Не включайте запись «на всякий случай»",
+    body: "Разрешайте запись только когда готовы, что эфир попадёт в архив. Без вашего подтверждения запись не стартует.",
+  },
+  {
+    id: "t3",
+    topic: "privacy",
+    title: "Пароли и аккаунт",
+    body: "Не используйте один пароль для почты и Червонца. В демо пароль хранится как хэш; в проде добавьте 2FA и выход на чужих устройствах.",
+  },
+  {
+    id: "t4",
+    topic: "money",
+    title: "Ставки без спешки",
+    body: "Перед ставкой сверьте лот, таймер и комиссию. Не гонитесь за последней секундой, если не уверены в доставке и возврате.",
+  },
+  {
+    id: "t5",
+    topic: "coins",
+    title: "Монеты: смотрите на сохранность",
+    body: "Для нумизматики важны царапины, патина и подлинность. Фото крупным планом и сертификат важнее «красивой картинки» в превью.",
+  },
+  {
+    id: "t6",
+    topic: "coins",
+    title: "Хранение червонцев и металла",
+    body: "Держите монеты в капсулах, без агрессивной чистки. Резкие перепады влажности портят поверхность сильнее, чем аккуратное обращение.",
+  },
+  {
+    id: "t7",
+    topic: "life",
+    title: "Цифровая гигиена в прямом эфире",
+    body: "Не светите в кадре документы, адрес и чужие лица без разрешения. Закройте уведомления на экране телефона.",
+  },
+  {
+    id: "t8",
+    topic: "life",
+    title: "Пауза для глаз и слуха",
+    body: "Каждые 40–50 минут эфира делайте короткую паузу: вода, смена позы, тише громкость наушников — меньше усталости к концу стрима.",
+  },
+  {
+    id: "t9",
+    topic: "stream",
+    title: "Низкая задержка без жертв",
+    body: "Режим Low lat держит короткий буфер. Если сеть скачет — переключитесь на 720p или Авто, а не отключайте буфер полностью.",
+  },
+  {
+    id: "t10",
+    topic: "money",
+    title: "Чеки и история ставок",
+    body: "Сохраняйте подтверждения ставок и переписок. При споре важны время лота, сумма и кто был авторизован в аккаунте.",
+  },
+  {
+    id: "t11",
+    topic: "privacy",
+    title: "Удаление из архива",
+    body: "Запись в архиве можно удалить. В проде удаление должно каскадно чистить CDN-копии и журналы доступа в разумный срок.",
+  },
+  {
+    id: "t12",
+    topic: "life",
+    title: "Не только коллекционирование",
+    body: "Площадка — ещё и полезные привычки: согласие на запись, защита данных, спокойные покупки и бережный стрим, а не только монеты.",
+  },
 ];
 
 const AUCTIONS = [
@@ -118,12 +193,30 @@ const authSubtabs = document.querySelectorAll(".auth-subtab");
 
 const ACCOUNTS_KEY = "chervonets_accounts_v1";
 const SESSION_KEY = "chervonets_session_v1";
+const ARCHIVE_KEY = "chervonets_archive_meta_v1";
+const CONSENT_KEY = "chervonets_record_consent_v1";
 
 const tabButtons = document.querySelectorAll(".tab");
 const panels = document.querySelectorAll(".tab-panel");
 const chromeMeta = document.querySelector("#chrome-meta");
 const auctionGrid = document.querySelector("#auction-grid");
 const filterChips = document.querySelectorAll("[data-filter]");
+const tipFilterChips = document.querySelectorAll("[data-tip-filter]");
+const tipsGrid = document.querySelector("#tips-grid");
+const archiveList = document.querySelector("#archive-list");
+const consentDialog = document.querySelector("#consent-dialog");
+const consentForm = document.querySelector("#consent-form");
+const consentCheck = document.querySelector("#consent-check");
+const consentRecordBtn = document.querySelector("#consent-record-btn");
+const endStreamBtn = document.querySelector("#end-stream-btn");
+const recIndicator = document.querySelector("#rec-indicator");
+const recBanner = document.querySelector("#rec-banner");
+const recBannerText = document.querySelector("#rec-banner-text");
+const consentNote = document.querySelector("#consent-note");
+const revokeConsentBtn = document.querySelector("#revoke-consent-btn");
+const wipeLocalBtn = document.querySelector("#wipe-local-btn");
+
+const VALID_TABS = new Set(["stream", "auctions", "archive", "tips", "privacy"]);
 
 const state = {
   tab: "stream",
@@ -134,7 +227,13 @@ const state = {
   user: null,
   viewers: 1284,
   auctionFilter: "all",
+  tipFilter: "all",
   lots: AUCTIONS.map((lot) => ({ ...lot })),
+  recordConsent: false,
+  recording: false,
+  mediaRecorder: null,
+  recordedChunks: [],
+  archiveBlobs: new Map(),
 };
 
 function formatMoney(value) {
@@ -208,6 +307,7 @@ async function startPlayback() {
     overlay.classList.add("is-hidden");
     playBtn.textContent = "❚❚";
     playBtn.setAttribute("aria-label", "Пауза");
+    if (state.recordConsent && !state.recording) startRecording();
   } catch {
     // Mobile browsers often require a fresh tap; keep overlay.
     overlay.classList.remove("is-hidden");
@@ -406,19 +506,26 @@ function openAuthDialog(mode = "vk") {
   else authDialog.setAttribute("open", "");
 }
 
-async function registerAccount({ name, email, password, password2 }) {
+async function registerAccount({ name, email, password, password2, privacyAccepted }) {
   const cleanName = name.trim().replace(/\s+/g, " ").slice(0, 40);
   const cleanEmail = email.trim().toLowerCase();
   if (!cleanName) return "Укажите имя.";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) return "Укажите корректный email.";
   if (password.length < 6) return "Пароль должен быть не короче 6 символов.";
   if (password !== password2) return "Пароли не совпадают.";
+  if (!privacyAccepted) return "Нужно согласие на обработку данных.";
   const accounts = readAccounts();
   if (accounts.some((item) => item.email === cleanEmail)) {
     return "Этот email уже зарегистрирован. Войдите во вкладке «Уже есть аккаунт».";
   }
   const passwordHash = await hashPassword(password);
-  const account = { name: cleanName, email: cleanEmail, passwordHash, createdAt: Date.now() };
+  const account = {
+    name: cleanName,
+    email: cleanEmail,
+    passwordHash,
+    createdAt: Date.now(),
+    privacyAcceptedAt: Date.now(),
+  };
   accounts.push(account);
   writeAccounts(accounts);
   setLocalUser(account);
@@ -437,20 +544,323 @@ async function loginAccount({ email, password }) {
 }
 
 function switchTab(tab) {
-  state.tab = tab;
+  const next = VALID_TABS.has(tab) ? tab : "stream";
+  state.tab = next;
   tabButtons.forEach((btn) => {
-    const active = btn.dataset.tab === tab;
+    const active = btn.dataset.tab === next;
     btn.classList.toggle("is-active", active);
     btn.setAttribute("aria-selected", active ? "true" : "false");
   });
   panels.forEach((panel) => {
-    const active = panel.dataset.panel === tab;
+    const active = panel.dataset.panel === next;
     panel.classList.toggle("is-active", active);
     panel.hidden = !active;
   });
-  chromeMeta.style.visibility = tab === "stream" ? "visible" : "hidden";
-  if (tab === "stream") history.replaceState(null, "", "#stream");
-  else history.replaceState(null, "", "#auctions");
+  chromeMeta.style.visibility = next === "stream" ? "visible" : "hidden";
+  history.replaceState(null, "", `#${next}`);
+  if (next === "archive") renderArchive();
+  if (next === "tips") renderTips();
+}
+
+function readArchiveMeta() {
+  try {
+    const raw = localStorage.getItem(ARCHIVE_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeArchiveMeta(list) {
+  localStorage.setItem(ARCHIVE_KEY, JSON.stringify(list));
+}
+
+function updateRecordingUI() {
+  const recording = state.recording;
+  const consented = state.recordConsent;
+  recIndicator.classList.toggle("is-off", !recording);
+  recIndicator.classList.toggle("is-on", recording);
+  recIndicator.title = recording ? "Идёт запись" : "Запись выключена";
+  recBanner.hidden = false;
+  endStreamBtn.disabled = !consented;
+  if (recording) {
+    recBannerText.textContent = "Идёт запись — после эфира файл уйдёт в архив";
+    consentRecordBtn.disabled = true;
+    consentRecordBtn.textContent = "Запись разрешена";
+    consentNote.textContent = "Согласие получено. Завершите эфир, чтобы сохранить видео в архив.";
+  } else if (consented) {
+    recBannerText.textContent = "Согласие есть — запись стартует с эфиром, завершение сохранит архив";
+    consentRecordBtn.disabled = true;
+    consentRecordBtn.textContent = "Согласие получено";
+    consentNote.textContent =
+      "Запись начнётся при воспроизведении. «Завершить эфир» сохранит видео в архив. Отозвать согласие — во вкладке «Защита».";
+  } else {
+    recBannerText.textContent = "Запись не ведётся — нужно согласие участника";
+    consentRecordBtn.disabled = false;
+    consentRecordBtn.textContent = "Разрешить запись";
+    consentNote.textContent =
+      "Видео стрима пишется только после подтверждения участника. Без согласия запись не стартует.";
+  }
+}
+
+function openConsentDialog() {
+  consentCheck.checked = false;
+  if (typeof consentDialog.showModal === "function") consentDialog.showModal();
+  else consentDialog.setAttribute("open", "");
+}
+
+function grantRecordConsent() {
+  state.recordConsent = true;
+  localStorage.setItem(CONSENT_KEY, JSON.stringify({ grantedAt: Date.now() }));
+  updateRecordingUI();
+  if (state.playing && !state.recording) startRecording();
+}
+
+function revokeRecordConsent() {
+  if (state.recording) stopRecording({ save: false });
+  state.recordConsent = false;
+  localStorage.removeItem(CONSENT_KEY);
+  updateRecordingUI();
+}
+
+function restoreConsent() {
+  try {
+    const raw = localStorage.getItem(CONSENT_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    state.recordConsent = Boolean(data?.grantedAt);
+  } catch {
+    localStorage.removeItem(CONSENT_KEY);
+  }
+}
+
+function pickRecorderMime() {
+  const candidates = ["video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"];
+  return candidates.find((type) => window.MediaRecorder?.isTypeSupported?.(type)) || "";
+}
+
+function startRecording() {
+  if (!state.recordConsent || state.recording || !video) return;
+  const capture = video.captureStream?.bind(video) || video.mozCaptureStream?.bind(video);
+  if (!capture || typeof MediaRecorder === "undefined") {
+    // Fallback demo recorder: mark as recording and archive a reference clip on stop.
+    state.recording = true;
+    state.recordedChunks = [];
+    state._demoRecording = true;
+    updateRecordingUI();
+    return;
+  }
+  let stream;
+  try {
+    stream = capture();
+  } catch {
+    state.recording = true;
+    state.recordedChunks = [];
+    state._demoRecording = true;
+    updateRecordingUI();
+    return;
+  }
+  if (!stream?.getTracks?.().length) {
+    state.recording = true;
+    state.recordedChunks = [];
+    state._demoRecording = true;
+    updateRecordingUI();
+    return;
+  }
+  const mimeType = pickRecorderMime();
+  try {
+    state.mediaRecorder = mimeType
+      ? new MediaRecorder(stream, { mimeType })
+      : new MediaRecorder(stream);
+  } catch {
+    state.recording = true;
+    state.recordedChunks = [];
+    state._demoRecording = true;
+    updateRecordingUI();
+    return;
+  }
+  state.recordedChunks = [];
+  state._demoRecording = false;
+  state.mediaRecorder.ondataavailable = (event) => {
+    if (event.data && event.data.size > 0) state.recordedChunks.push(event.data);
+  };
+  state.mediaRecorder.start(1000);
+  state.recording = true;
+  updateRecordingUI();
+}
+
+function stopRecording({ save }) {
+  return new Promise((resolve) => {
+    const finishDemo = () => {
+      state.recording = false;
+      state.mediaRecorder = null;
+      if (save) {
+        const id = `rec-${Date.now()}`;
+        const title = `Эфир «${document.querySelector("#stream-title")?.textContent || "Студия"}»`;
+        const entry = {
+          id,
+          title,
+          createdAt: Date.now(),
+          durationSec: Math.max(5, Math.floor(video.currentTime || 12)),
+          quality: QUALITIES[currentQualityKey()]?.label || state.quality,
+          consent: true,
+          protected: true,
+          src: QUALITIES[currentQualityKey()]?.src || QUALITIES["720"].src,
+          demo: true,
+        };
+        const list = readArchiveMeta();
+        list.unshift(entry);
+        writeArchiveMeta(list.slice(0, 30));
+        renderArchive();
+      }
+      updateRecordingUI();
+      resolve(save);
+    };
+
+    if (state._demoRecording || !state.mediaRecorder) {
+      finishDemo();
+      return;
+    }
+
+    const recorder = state.mediaRecorder;
+    recorder.onstop = () => {
+      state.recording = false;
+      state.mediaRecorder = null;
+      if (save && state.recordedChunks.length) {
+        const blob = new Blob(state.recordedChunks, { type: recorder.mimeType || "video/webm" });
+        const id = `rec-${Date.now()}`;
+        const url = URL.createObjectURL(blob);
+        state.archiveBlobs.set(id, url);
+        const entry = {
+          id,
+          title: `Эфир «${document.querySelector("#stream-title")?.textContent || "Студия"}»`,
+          createdAt: Date.now(),
+          durationSec: Math.max(5, Math.floor(video.currentTime || 12)),
+          quality: QUALITIES[currentQualityKey()]?.label || state.quality,
+          consent: true,
+          protected: true,
+          src: url,
+          demo: false,
+        };
+        const list = readArchiveMeta();
+        list.unshift(entry);
+        writeArchiveMeta(list.slice(0, 30));
+        renderArchive();
+      }
+      state.recordedChunks = [];
+      updateRecordingUI();
+      resolve(save);
+    };
+    try {
+      if (recorder.state !== "inactive") recorder.stop();
+      else finishDemo();
+    } catch {
+      finishDemo();
+    }
+  });
+}
+
+async function endStreamToArchive() {
+  if (!state.recordConsent) {
+    openConsentDialog();
+    return;
+  }
+  if (state.recording) await stopRecording({ save: true });
+  else if (state.recordConsent) {
+    // Consent was given but recording never attached — still archive a protected stub.
+    state._demoRecording = true;
+    state.recording = true;
+    await stopRecording({ save: true });
+  }
+  video.pause();
+  state.playing = false;
+  playBtn.textContent = "▶";
+  overlay.classList.remove("is-hidden");
+  switchTab("archive");
+}
+
+function renderArchive() {
+  const list = readArchiveMeta();
+  if (!list.length) {
+    archiveList.innerHTML = `
+      <div class="empty-state">
+        <p>Архив пуст. Разрешите запись на вкладке «Стрим», проведите эфир и нажмите «Завершить эфир → архив».</p>
+      </div>`;
+    return;
+  }
+  archiveList.innerHTML = list
+    .map((item) => {
+      const when = new Date(item.createdAt).toLocaleString("ru-RU", {
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      const src = state.archiveBlobs.get(item.id) || item.src || "";
+      return `
+        <article class="archive-card" data-archive-id="${item.id}">
+          <div class="archive-preview">
+            ${src ? `<video src="${src}" controls playsinline preload="metadata" controlslist="nodownload"></video>` : `<div class="archive-fallback">Нет превью</div>`}
+            <span class="lot-badge is-live">Согласие ✓</span>
+          </div>
+          <div class="archive-body">
+            <h3>${item.title}</h3>
+            <p class="archive-meta">${when} · ${formatTime(item.durationSec || 0)} · ${item.quality || "—"}</p>
+            <p class="archive-shield">Защищено: запись только после согласия участника${item.protected ? " · локальный архив" : ""}</p>
+            <div class="lot-actions">
+              <button type="button" class="btn btn-ghost" data-delete-archive="${item.id}">Удалить из архива</button>
+            </div>
+          </div>
+        </article>`;
+    })
+    .join("");
+}
+
+function deleteArchiveItem(id) {
+  const url = state.archiveBlobs.get(id);
+  if (url) {
+    URL.revokeObjectURL(url);
+    state.archiveBlobs.delete(id);
+  }
+  writeArchiveMeta(readArchiveMeta().filter((item) => item.id !== id));
+  renderArchive();
+}
+
+function renderTips() {
+  const tips = TIPS.filter((tip) => (state.tipFilter === "all" ? true : tip.topic === state.tipFilter));
+  const labels = {
+    stream: "Стрим",
+    privacy: "Данные",
+    money: "Покупки",
+    coins: "Монеты",
+    life: "Быт",
+  };
+  tipsGrid.innerHTML = tips
+    .map(
+      (tip) => `
+      <article class="tip-card tip-${tip.topic}">
+        <p class="tip-topic">${labels[tip.topic] || tip.topic}</p>
+        <h3>${tip.title}</h3>
+        <p>${tip.body}</p>
+      </article>`
+    )
+    .join("");
+}
+
+function wipeLocalData() {
+  if (state.recording) stopRecording({ save: false });
+  localStorage.removeItem(ACCOUNTS_KEY);
+  localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(ARCHIVE_KEY);
+  localStorage.removeItem(CONSENT_KEY);
+  state.archiveBlobs.forEach((url) => URL.revokeObjectURL(url));
+  state.archiveBlobs.clear();
+  state.recordConsent = false;
+  clearUser();
+  updateRecordingUI();
+  renderArchive();
+  switchTab("privacy");
 }
 
 function renderAuctions() {
@@ -565,6 +975,24 @@ function bindPlayer() {
   playCta.addEventListener("click", startPlayback);
   playBtn.addEventListener("click", togglePlay);
   playerFrame.addEventListener("dblclick", togglePlay);
+  consentRecordBtn.addEventListener("click", openConsentDialog);
+  endStreamBtn.addEventListener("click", () => {
+    endStreamToArchive();
+  });
+
+  function closeConsentDialog() {
+    if (typeof consentDialog.close === "function") consentDialog.close("cancel");
+    else consentDialog.removeAttribute("open");
+  }
+
+  document.querySelector("#consent-allow-btn").addEventListener("click", () => {
+    if (!consentCheck.checked) {
+      consentCheck.focus();
+      return;
+    }
+    grantRecordConsent();
+    closeConsentDialog();
+  });
 
   muteBtn.addEventListener("click", () => {
     video.muted = !video.muted;
@@ -593,6 +1021,7 @@ function bindPlayer() {
     overlay.classList.add("is-hidden");
     state.playing = true;
     playBtn.textContent = "❚❚";
+    if (state.recordConsent && !state.recording) startRecording();
   });
   video.addEventListener("pause", () => {
     if (!video.ended) {
@@ -607,6 +1036,8 @@ function bindPlayer() {
     state.autoQuality = true;
   }
 
+  restoreConsent();
+  updateRecordingUI();
   applySource(true);
   setInterval(chaseLiveEdge, 900);
 }
@@ -650,6 +1081,7 @@ function bindChat() {
       email: document.querySelector("#reg-email").value,
       password: document.querySelector("#reg-password").value,
       password2: document.querySelector("#reg-password2").value,
+      privacyAccepted: document.querySelector("#reg-privacy")?.checked,
     });
     if (error) {
       showAuthError(registerError, error);
@@ -706,11 +1138,10 @@ function bindTabs() {
     btn.addEventListener("click", () => switchTab(btn.dataset.tab));
   });
   const hash = location.hash.replace("#", "");
-  if (hash === "auctions") switchTab("auctions");
-  else switchTab("stream");
+  switchTab(VALID_TABS.has(hash) ? hash : "stream");
   window.addEventListener("hashchange", () => {
     const next = location.hash.replace("#", "");
-    switchTab(next === "auctions" ? "auctions" : "stream");
+    switchTab(VALID_TABS.has(next) ? next : "stream");
   });
 }
 
@@ -737,7 +1168,37 @@ function bindAuctions() {
   setInterval(tickAuctions, 1000);
 }
 
+function bindArchiveTipsPrivacy() {
+  tipFilterChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      state.tipFilter = chip.dataset.tipFilter;
+      tipFilterChips.forEach((node) => node.classList.toggle("is-on", node === chip));
+      renderTips();
+    });
+  });
+
+  archiveList.addEventListener("click", (event) => {
+    const del = event.target.closest("[data-delete-archive]");
+    if (del) deleteArchiveItem(del.dataset.deleteArchive);
+  });
+
+  revokeConsentBtn.addEventListener("click", () => {
+    revokeRecordConsent();
+  });
+
+  wipeLocalBtn.addEventListener("click", () => {
+    const ok = window.confirm(
+      "Удалить локальные аккаунты, сессию, согласия и архив в этом браузере? Это необратимо для демо-данных."
+    );
+    if (ok) wipeLocalData();
+  });
+
+  renderTips();
+  renderArchive();
+}
+
 bindPlayer();
 bindChat();
 bindTabs();
 bindAuctions();
+bindArchiveTipsPrivacy();

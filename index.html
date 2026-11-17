@@ -9,10 +9,10 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>Золотой червонец — стрим и аукционы</title>
+    <title>Золотой червонец — стрим, советы и защита данных</title>
     <meta
       name="description"
-      content="Золотой червонец (Chervonets) — смотрите стрим с телефона с низкой задержкой, комментируйте через ВКонтакте и участвуйте в аукционах."
+      content="Золотой червонец — стрим с согласием на запись, архив эфиров, аукционы, полезные советы и защита персональных данных."
     />
     <meta name="theme-color" content="#0b1520" />
     <link rel="icon" href="./favicon.png" type="image/png" />
@@ -35,28 +35,11 @@
         </a>
 
         <nav class="tabs" role="tablist" aria-label="Разделы">
-          <button
-            type="button"
-            class="tab is-active"
-            role="tab"
-            id="tab-stream"
-            aria-selected="true"
-            aria-controls="panel-stream"
-            data-tab="stream"
-          >
-            Стрим
-          </button>
-          <button
-            type="button"
-            class="tab"
-            role="tab"
-            id="tab-auctions"
-            aria-selected="false"
-            aria-controls="panel-auctions"
-            data-tab="auctions"
-          >
-            Аукционы
-          </button>
+          <button type="button" class="tab is-active" role="tab" id="tab-stream" aria-selected="true" aria-controls="panel-stream" data-tab="stream">Стрим</button>
+          <button type="button" class="tab" role="tab" id="tab-auctions" aria-selected="false" aria-controls="panel-auctions" data-tab="auctions">Аукционы</button>
+          <button type="button" class="tab" role="tab" id="tab-archive" aria-selected="false" aria-controls="panel-archive" data-tab="archive">Архив</button>
+          <button type="button" class="tab" role="tab" id="tab-tips" aria-selected="false" aria-controls="panel-tips" data-tab="tips">Советы</button>
+          <button type="button" class="tab" role="tab" id="tab-privacy" aria-selected="false" aria-controls="panel-privacy" data-tab="privacy">Защита</button>
         </nav>
 
         <div class="chrome-meta" id="chrome-meta" aria-live="polite">
@@ -106,17 +89,21 @@
                   />
                   <p class="host-kicker">С телефона и с компьютера</p>
                   <h1 class="host-title">Золотой червонец</h1>
-                  <p class="host-sub">Низкая задержка · до 1080p · чат VK или регистрация</p>
+                  <p class="host-sub">Запись только после вашего согласия · архив после эфира</p>
                   <button type="button" class="btn btn-primary" id="play-cta">Смотреть</button>
                 </div>
               </div>
 
               <div class="buffer-toast" id="buffer-toast" hidden>Подгрузка…</div>
+              <div class="rec-banner" id="rec-banner" hidden>
+                <span class="rec-banner-dot" aria-hidden="true"></span>
+                <span id="rec-banner-text">Запись не ведётся — нужно согласие участника</span>
+              </div>
 
               <div class="player-bar">
                 <div class="player-bar-left">
                   <button type="button" class="icon-btn" id="play-btn" aria-label="Пауза">❚❚</button>
-                  <span class="rec" aria-hidden="true"></span>
+                  <span class="rec is-off" id="rec-indicator" title="Запись выключена" aria-hidden="true"></span>
                   <span class="stream-title" id="stream-title">Студия «Север»</span>
                 </div>
                 <div class="player-bar-mid" aria-label="Состояние потока">
@@ -150,9 +137,13 @@
                 </div>
               </div>
             </div>
-            <p class="stage-note">
-              На телефоне видео идёт на весь экран по ширине, с playsinline — без принудительного fullscreen iOS.
-            </p>
+            <div class="stream-actions">
+              <button type="button" class="btn btn-primary" id="consent-record-btn">Разрешить запись</button>
+              <button type="button" class="btn btn-ghost" id="end-stream-btn" disabled>Завершить эфир → архив</button>
+              <p class="stage-note" id="consent-note">
+                Видео стрима пишется только после подтверждения участника. Без согласия запись не стартует.
+              </p>
+            </div>
           </section>
 
           <aside class="chat" aria-label="Комментарии ВКонтакте">
@@ -195,9 +186,9 @@
 
         <section class="about wrap" aria-labelledby="about-title">
           <p class="eyebrow">Поток</p>
-          <h2 id="about-title">Смотрите с телефона без лишней задержки</h2>
+          <h2 id="about-title">Смотрите без лишней задержки — и с контролем записи</h2>
           <p class="about-lede">
-            Короткий буфер, авто-качество под сеть и чат через VK или регистрацию. Аукционы — на соседней вкладке.
+            Короткий буфер и чат. Запись стрима — только после вашего согласия; готовое видео — во вкладке «Архив». Советы и защита данных — рядом.
           </p>
         </section>
       </div>
@@ -229,11 +220,99 @@
           <div class="auction-grid" id="auction-grid"></div>
         </section>
       </div>
+
+      <div class="tab-panel" id="panel-archive" role="tabpanel" aria-labelledby="tab-archive" data-panel="archive" hidden>
+        <section class="content-panel wrap" aria-labelledby="archive-title">
+          <header class="content-head">
+            <div>
+              <p class="eyebrow">После эфира</p>
+              <h1 id="archive-title">Архив записей</h1>
+              <p class="about-lede">
+                Эфир попадает сюда только после вашего согласия на запись и завершения стрима. Файлы в демо хранятся локально в браузере.
+              </p>
+            </div>
+          </header>
+          <div class="archive-list" id="archive-list"></div>
+        </section>
+      </div>
+
+      <div class="tab-panel" id="panel-tips" role="tabpanel" aria-labelledby="tab-tips" data-panel="tips" hidden>
+        <section class="content-panel wrap" aria-labelledby="tips-title">
+          <header class="content-head">
+            <div>
+              <p class="eyebrow">Не только монеты</p>
+              <h1 id="tips-title">Полезные советы</h1>
+              <p class="about-lede">
+                Практические подсказки по стриму, безопасности, покупкам и цифровой гигиене — шире, чем одни нумизматические лоты.
+              </p>
+            </div>
+            <div class="tips-filter" role="group" aria-label="Темы советов">
+              <button type="button" class="chip is-on" data-tip-filter="all">Все</button>
+              <button type="button" class="chip" data-tip-filter="stream">Стрим</button>
+              <button type="button" class="chip" data-tip-filter="privacy">Данные</button>
+              <button type="button" class="chip" data-tip-filter="money">Покупки</button>
+              <button type="button" class="chip" data-tip-filter="coins">Монеты</button>
+              <button type="button" class="chip" data-tip-filter="life">Быт</button>
+            </div>
+          </header>
+          <div class="tips-grid" id="tips-grid"></div>
+        </section>
+      </div>
+
+      <div class="tab-panel" id="panel-privacy" role="tabpanel" aria-labelledby="tab-privacy" data-panel="privacy" hidden>
+        <section class="content-panel wrap" aria-labelledby="privacy-title">
+          <header class="content-head">
+            <div>
+              <p class="eyebrow">Приоритет №1</p>
+              <h1 id="privacy-title">Защита данных</h1>
+              <p class="about-lede">
+                Запись эфира, чат и аккаунт работают только с явным согласием. Минимизируем данные и даём контроль над ними.
+              </p>
+            </div>
+          </header>
+
+          <div class="privacy-grid">
+            <article class="privacy-card">
+              <h2>Согласие на запись</h2>
+              <p>Стрим пишется только после кнопки «Разрешить запись». Без подтверждения участника запись не стартует.</p>
+            </article>
+            <article class="privacy-card">
+              <h2>Архив по завершении</h2>
+              <p>После «Завершить эфир» файл уходит в архив. Можно удалить запись из архива в любой момент.</p>
+            </article>
+            <article class="privacy-card">
+              <h2>Минимум данных</h2>
+              <p>Для аккаунта — имя, email и хэш пароля. Пароль в открытом виде не хранится. В проде — шифрование и сервер с доступом по роли.</p>
+            </article>
+            <article class="privacy-card">
+              <h2>Ваш контроль</h2>
+              <p>Выйдите из аккаунта, удалите локальные данные или отзовите согласие на запись до старта.</p>
+              <div class="privacy-actions">
+                <button type="button" class="btn btn-ghost" id="revoke-consent-btn">Отозвать согласие на запись</button>
+                <button type="button" class="btn btn-ghost" id="wipe-local-btn">Очистить локальные данные</button>
+              </div>
+            </article>
+          </div>
+
+          <div class="privacy-policy" id="privacy-policy">
+            <h2>Краткая политика</h2>
+            <ul>
+              <li>Не собираем паспортные данные и документы.</li>
+              <li>Комментарии и ставки видны в эфире; лишний профиль не публикуем.</li>
+              <li>Запись эфира — только с согласия; хранение в архиве можно прервать удалением.</li>
+              <li>В проде: HTTPS, OAuth VK, шифрование at rest, журнал доступов, право на удаление аккаунта.</li>
+            </ul>
+          </div>
+        </section>
+      </div>
     </div>
 
     <footer class="footer wrap">
-      <p><strong>Золотой червонец</strong> · Chervonets · мобильный стрим, чат и аукционы</p>
-      <p class="footer-note">Макет интерфейса. В проде — WebRTC / LL-HLS, OAuth VK, регистрация и сервер ставок.</p>
+      <p><strong>Золотой червонец</strong> · стрим по согласию · архив · советы · защита данных</p>
+      <p class="footer-note">
+        Запись эфира — только после подтверждения участника. После завершения — в архив.
+        <a href="#privacy">Политика и контроль данных</a>
+      </p>
     </footer>
 
     <dialog class="vk-dialog" id="auth-dialog" aria-labelledby="auth-dialog-title">
@@ -312,6 +391,10 @@
               <span>Повтор пароля</span>
               <input id="reg-password2" name="password2" type="password" minlength="6" autocomplete="new-password" required placeholder="Ещё раз" />
             </label>
+            <label class="consent-check" for="reg-privacy">
+              <input id="reg-privacy" name="privacy" type="checkbox" required />
+              <span>Соглашаюсь на обработку данных по правилам вкладки «Защита». Пароль хранится только как хэш.</span>
+            </label>
             <div class="dialog-actions">
               <button type="button" class="btn btn-ghost" id="register-cancel-btn">Отмена</button>
               <button type="submit" class="btn btn-primary" id="register-submit-btn">Зарегистрироваться</button>
@@ -336,6 +419,29 @@
           </form>
         </div>
       </div>
+    </dialog>
+
+    <dialog class="vk-dialog" id="consent-dialog" aria-labelledby="consent-dialog-title">
+      <form method="dialog" class="vk-dialog-inner" id="consent-form">
+        <p class="chat-kicker">Запись эфира</p>
+        <h2 id="consent-dialog-title">Подтвердите запись стрима</h2>
+        <p class="auth-lede">
+          Видео начнёт писаться только после вашего «Разрешаю». По окончании эфира запись сохранится в архив. Без согласия запись не ведётся.
+        </p>
+        <ul class="consent-list">
+          <li>Можно отозвать согласие во вкладке «Защита», пока запись не начата или после остановки.</li>
+          <li>В демо файл остаётся в этом браузере; в проде — защищённое хранилище с доступом по роли.</li>
+          <li>Чат и ставки не подменяют согласие на видеозапись.</li>
+        </ul>
+        <label class="consent-check" for="consent-check">
+          <input id="consent-check" name="consent" type="checkbox" required />
+          <span>Я участник и разрешаю запись этого стрима с последующим сохранением в архив.</span>
+        </label>
+        <div class="dialog-actions">
+          <button type="submit" class="btn btn-ghost" value="cancel">Не сейчас</button>
+          <button type="button" class="btn btn-primary" id="consent-allow-btn">Разрешаю запись</button>
+        </div>
+      </form>
     </dialog>
 
     <script src="./main.js" defer></script>
