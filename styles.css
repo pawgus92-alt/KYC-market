@@ -800,10 +800,14 @@ button, select, textarea { font: inherit; color: inherit; }
 }
 .vk-setup,
 .vk-live { margin-bottom: 12px; }
-.vk-live {
+.vk-live:not([hidden]) {
   display: grid;
   gap: 10px;
   justify-items: stretch;
+}
+.vk-setup[hidden],
+.vk-live[hidden] {
+  display: none !important;
 }
 .btn-vk-large {
   width: 100%;
