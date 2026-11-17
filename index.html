@@ -285,8 +285,11 @@
               <p>VK отдаёт имя и id после OAuth; локальный аккаунт — имя, email и хэш пароля. Пароль в открытом виде не хранится.</p>
             </article>
             <article class="privacy-card">
-              <h2>VK ID</h2>
-              <p>Вход через официальный VK ID SDK. Redirect URL должен совпадать с адресом сайта в настройках приложения VK.</p>
+              <h2>Вход через VK</h2>
+              <p>
+                Настоящий вход через окно ВКонтакте (Open API / OAuth). В настройках приложения VK укажите домен сайта
+                и Trusted redirect URL — затем сохраните ID приложения на сайте.
+              </p>
               <div class="privacy-actions">
                 <button type="button" class="btn btn-vk" id="privacy-vk-setup">Настроить вход VK</button>
               </div>
@@ -339,53 +342,31 @@
 
         <div id="vk-form" class="auth-pane is-on" data-pane="vk">
           <p class="auth-hint" id="vk-auth-hint">
-            Вход через VK ID. Укажите Application ID приложения VK (доверенный Redirect URL = адрес этого сайта).
+            Настоящий вход через окно ВКонтакте (Open API). Нужен ID вашего приложения VK.
           </p>
           <p class="auth-error" id="vk-auth-error" hidden></p>
 
           <div class="vk-setup" id="vk-setup">
             <ol class="consent-list" id="vk-setup-steps"></ol>
             <label class="auth-field" for="vk-app-id-input">
-              <span>VK Application ID</span>
-              <input id="vk-app-id-input" type="text" inputmode="numeric" autocomplete="off" placeholder="Например, 51789012" />
+              <span>ID приложения VK</span>
+              <input id="vk-app-id-input" type="text" inputmode="numeric" autocomplete="off" placeholder="Только цифры, например 51789012" />
             </label>
-            <div class="dialog-actions" style="justify-content: flex-start">
-              <button type="button" class="btn btn-primary" id="vk-save-app-id">Сохранить App ID</button>
-              <a class="btn btn-ghost" id="vk-create-app-link" href="https://id.vk.com/about/business/go" target="_blank" rel="noopener">Создать приложение VK</a>
+            <div class="dialog-actions" style="justify-content: flex-start; flex-wrap: wrap">
+              <button type="button" class="btn btn-primary" id="vk-save-app-id">Сохранить и войти</button>
+              <a class="btn btn-ghost" id="vk-create-app-link" href="https://vk.com/editapp?act=create" target="_blank" rel="noopener">Создать приложение</a>
             </div>
           </div>
 
           <div class="vk-live" id="vk-live" hidden>
+            <button type="button" class="btn btn-vk btn-vk-large" id="vk-login-real">Войти через VK</button>
+            <p class="auth-hint" id="vk-live-hint">Откроется настоящее окно авторизации ВКонтакте.</p>
             <div id="vk-onetap" class="vk-onetap" aria-live="polite"></div>
             <div class="dialog-actions" style="justify-content: space-between; width: 100%">
               <button type="button" class="btn btn-ghost" id="vk-change-app-id">Сменить App ID</button>
-              <button type="button" class="btn btn-vk" id="vk-login-redirect">Войти через VK</button>
+              <button type="button" class="btn btn-ghost" id="vk-login-redirect">Войти через redirect</button>
             </div>
           </div>
-
-          <details class="vk-demo-details">
-            <summary>Демо без VK App ID</summary>
-            <p class="auth-hint">Для проверки интерфейса без создания приложения VK.</p>
-            <fieldset class="vk-profiles">
-              <legend class="sr-only">Демо-профиль</legend>
-              <label class="vk-profile">
-                <input type="radio" name="profile" value="anna" checked />
-                <span><strong>Анна К.</strong><small>@anna.north</small></span>
-              </label>
-              <label class="vk-profile">
-                <input type="radio" name="profile" value="igor" />
-                <span><strong>Игорь М.</strong><small>@igor.live</small></span>
-              </label>
-              <label class="vk-profile">
-                <input type="radio" name="profile" value="mira" />
-                <span><strong>Мира С.</strong><small>@mira.stream</small></span>
-              </label>
-            </fieldset>
-            <div class="dialog-actions">
-              <button type="button" class="btn btn-ghost" id="vk-cancel-btn">Отмена</button>
-              <button type="button" class="btn btn-vk" id="connect-vk-btn">Демо-вход</button>
-            </div>
-          </details>
 
           <div class="dialog-actions" id="vk-close-row">
             <button type="button" class="btn btn-ghost" id="vk-dialog-close">Закрыть</button>

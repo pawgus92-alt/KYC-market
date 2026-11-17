@@ -16,12 +16,6 @@ const QUALITIES = {
   },
 };
 
-const PROFILES = {
-  anna: { name: "Анна К.", handle: "@anna.north", color: "#7ad7ff", initials: "АК" },
-  igor: { name: "Игорь М.", handle: "@igor.live", color: "#9dffa8", initials: "ИМ" },
-  mira: { name: "Мира С.", handle: "@mira.stream", color: "#ffd28a", initials: "МС" },
-};
-
 const SEED_COMMENTS = [
   { name: "Лена В.", text: "Картинка чёткая с телефона 🔥", color: "#ff9ec7", initials: "ЛВ" },
   { name: "Павел", text: "Запись только после согласия — правильно", color: "#b8a7ff", initials: "П" },
@@ -344,13 +338,16 @@ function showBuffering(isBuffering) {
   bufferToast.hidden = !isBuffering;
 }
 
-function appendComment({ name, text, color, initials, self = false }) {
+function appendComment({ name, text, color, initials, photo = null, self = false }) {
   const row = document.createElement("article");
   row.className = self ? "comment is-self" : "comment";
   const now = new Date();
   const stamp = now.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+  const avatar = photo
+    ? `<img class="avatar avatar-photo" src="${photo}" alt="" width="34" height="34" />`
+    : `<div class="avatar" style="background:${color}">${initials}</div>`;
   row.innerHTML = `
-    <div class="avatar" style="background:${color}">${initials}</div>
+    ${avatar}
     <div>
       <div class="comment-meta"><strong>${name}</strong><time>${stamp}</time></div>
       <p></p>
@@ -420,6 +417,7 @@ function applyUser(user, persist = true) {
         name: user.name,
         handle: user.handle,
         email: user.email || null,
+        photo: user.photo || null,
         color: user.color,
         initials: user.initials,
       })
@@ -428,14 +426,9 @@ function applyUser(user, persist = true) {
   renderAuctions();
 }
 
-function setVkUser(profileKeyOrUser) {
-  if (profileKeyOrUser && typeof profileKeyOrUser === "object") {
-    applyUser({ provider: "vk", ...profileKeyOrUser });
-    return;
-  }
-  const profile = PROFILES[profileKeyOrUser];
-  if (!profile) return;
-  applyUser({ key: profileKeyOrUser, provider: "vk", ...profile });
+function setVkUser(user) {
+  if (!user || typeof user !== "object") return;
+  applyUser({ provider: "vk", ...user });
 }
 
 function showVkError(message) {
@@ -450,18 +443,65 @@ function showVkError(message) {
   node.textContent = message;
 }
 
+function closeAuthDialogUi() {
+  if (typeof authDialog.close === "function") authDialog.close("cancel");
+  else authDialog.removeAttribute("open");
+}
+
+async function completeVkLogin(user) {
+  if (!user) return;
+  setVkUser(user);
+  closeAuthDialogUi();
+}
+
+async function startRealVkLogin() {
+  showVkError("");
+  const { connectVkReal, resolveVkAppId } = await import("./vk-auth.js");
+  const appId = await resolveVkAppId();
+  if (!appId) {
+    showVkError("Сначала укажите ID приложения VK.");
+    document.querySelector("#vk-setup").hidden = false;
+    document.querySelector("#vk-live").hidden = true;
+    document.querySelector("#vk-app-id-input")?.focus();
+    return;
+  }
+  const btn = document.querySelector("#vk-login-real");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Открываем VK…";
+  }
+  try {
+    const user = await connectVkReal();
+    if (user) await completeVkLogin(user);
+  } catch (err) {
+    if (err?.code === "NO_APP_ID") {
+      showVkError("Нужен ID приложения VK.");
+    } else {
+      showVkError(err?.message || "Не удалось войти через VK");
+    }
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Войти через VK";
+    }
+  }
+}
+
 async function refreshVkAuthUi() {
   const setup = document.querySelector("#vk-setup");
   const live = document.querySelector("#vk-live");
   const steps = document.querySelector("#vk-setup-steps");
   const input = document.querySelector("#vk-app-id-input");
   const hint = document.querySelector("#vk-auth-hint");
-  const { resolveVkAppId, getRedirectUrl, buildVkAppSetupHelp, renderVkOneTap } = await import("./vk-auth.js");
+  const liveHint = document.querySelector("#vk-live-hint");
+  const {
+    resolveVkAppId,
+    buildVkAppSetupHelp,
+    renderVkOneTap,
+  } = await import("./vk-auth.js");
   const appId = await resolveVkAppId();
-  const help = buildVkAppSetupHelp(getRedirectUrl());
-  if (steps) {
-    steps.innerHTML = help.steps.map((step) => `<li>${step}</li>`).join("");
-  }
+  const help = buildVkAppSetupHelp();
+  if (steps) steps.innerHTML = help.steps.map((step) => `<li>${step}</li>`).join("");
   if (input && !input.value) input.value = appId || "";
   const createLink = document.querySelector("#vk-create-app-link");
   if (createLink) createLink.href = help.createAppUrl;
@@ -470,30 +510,26 @@ async function refreshVkAuthUi() {
     setup.hidden = false;
     live.hidden = true;
     hint.textContent =
-      "Чтобы включить настоящий вход VK ID, создайте приложение и укажите Application ID. Redirect URL должен совпадать с адресом сайта.";
+      "Чтобы войти по-настоящему, создайте приложение VK (тип «Веб-сайт») и укажите его ID. Domains/redirect должны совпадать с этим сайтом.";
     return;
   }
 
   setup.hidden = true;
   live.hidden = false;
-  hint.textContent = `VK ID подключён (App ID ${appId}). Войдите кнопкой ниже. Redirect: ${help.redirectUrl}`;
-  showVkError("");
-  try {
-    await renderVkOneTap(document.querySelector("#vk-onetap"), {
-      appId,
-      appName: "Золотой червонец",
-      onSuccess: (user) => {
-        setVkUser(user);
-        if (typeof authDialog.close === "function") authDialog.close();
-        else authDialog.removeAttribute("open");
-      },
-      onError: (err) => {
-        showVkError(err?.message || String(err) || "Ошибка VK ID");
-      },
-    });
-  } catch (err) {
-    showVkError(err?.message || "Не удалось отрисовать VK One Tap");
+  hint.textContent = `Приложение VK подключено (ID ${appId}). Домен: ${help.domain}`;
+  if (liveHint) {
+    liveHint.textContent = `Redirect URL для настроек VK: ${help.redirectUrl}`;
   }
+  showVkError("");
+
+  // Optional One Tap under the main button (if SDK loads).
+  renderVkOneTap(document.querySelector("#vk-onetap"), {
+    appId,
+    onSuccess: (user) => completeVkLogin(user),
+    onError: () => {
+      /* Open API button remains the primary path */
+    },
+  }).catch(() => {});
 }
 
 function setLocalUser(account) {
@@ -511,6 +547,9 @@ function setLocalUser(account) {
 function clearUser() {
   state.user = null;
   localStorage.removeItem(SESSION_KEY);
+  import("./vk-auth.js")
+    .then(({ clearVkSession }) => clearVkSession())
+    .catch(() => {});
   chatUser.textContent = "Гость · просмотр";
   vkToggle.textContent = "VK";
   vkToggle.setAttribute("aria-pressed", "false");
@@ -919,6 +958,12 @@ function wipeLocalData() {
   localStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(ARCHIVE_KEY);
   localStorage.removeItem(CONSENT_KEY);
+  import("./vk-auth.js")
+    .then(({ clearVkSession, setStoredVkAppId }) => {
+      clearVkSession();
+      setStoredVkAppId("");
+    })
+    .catch(() => {});
   state.archiveBlobs.forEach((url) => URL.revokeObjectURL(url));
   state.archiveBlobs.clear();
   state.recordConsent = false;
@@ -1120,7 +1165,6 @@ function bindChat() {
     }
     openAuthDialog("vk");
   });
-  vkConnect.addEventListener("click", () => openAuthDialog("vk"));
   registerConnect.addEventListener("click", () => openAuthDialog("register"));
 
   authTabs.forEach((tab) => {
@@ -1133,25 +1177,19 @@ function bindChat() {
     tab.addEventListener("click", () => switchLocalMode(tab.dataset.localMode));
   });
 
-  document.querySelector("#connect-vk-btn").addEventListener("click", () => {
-    const selected = vkForm.querySelector('input[name="profile"]:checked');
-    if (selected) setVkUser(selected.value);
-    closeAuthDialog();
-  });
-
   document.querySelector("#vk-dialog-close")?.addEventListener("click", closeAuthDialog);
-  document.querySelector("#vk-cancel-btn")?.addEventListener("click", closeAuthDialog);
 
   document.querySelector("#vk-save-app-id")?.addEventListener("click", async () => {
     const { setStoredVkAppId } = await import("./vk-auth.js");
     const value = document.querySelector("#vk-app-id-input")?.value || "";
-    if (!String(value).trim()) {
-      showVkError("Укажите Application ID из кабинета VK.");
+    if (!String(value).replace(/\D/g, "").trim()) {
+      showVkError("Укажите числовой ID приложения из настроек VK.");
       return;
     }
     setStoredVkAppId(value);
     showVkError("");
     await refreshVkAuthUi();
+    await startRealVkLogin();
   });
 
   document.querySelector("#vk-change-app-id")?.addEventListener("click", async () => {
@@ -1159,15 +1197,19 @@ function bindChat() {
     document.querySelector("#vk-live").hidden = true;
   });
 
+  document.querySelector("#vk-login-real")?.addEventListener("click", () => {
+    startRealVkLogin();
+  });
+
   document.querySelector("#vk-login-redirect")?.addEventListener("click", async () => {
     try {
-      const { resolveVkAppId, startVkLoginRedirect } = await import("./vk-auth.js");
+      const { resolveVkAppId, startVkOAuthRedirect } = await import("./vk-auth.js");
       const appId = await resolveVkAppId();
       if (!appId) {
-        showVkError("Сначала сохраните VK Application ID.");
+        showVkError("Сначала сохраните ID приложения VK.");
         return;
       }
-      await startVkLoginRedirect(appId);
+      await startVkOAuthRedirect(appId);
     } catch (err) {
       showVkError(err?.message || "Не удалось открыть вход VK");
     }
@@ -1175,6 +1217,16 @@ function bindChat() {
 
   document.querySelector("#privacy-vk-setup")?.addEventListener("click", () => {
     openAuthDialog("vk");
+  });
+
+  vkConnect.addEventListener("click", async () => {
+    openAuthDialog("vk");
+    const { resolveVkAppId } = await import("./vk-auth.js");
+    const appId = await resolveVkAppId();
+    if (appId) {
+      // After dialog paints, open the real VK login window.
+      setTimeout(() => startRealVkLogin(), 160);
+    }
   });
 
   document.querySelector("#register-cancel-btn").addEventListener("click", closeAuthDialog);
@@ -1228,6 +1280,7 @@ function bindChat() {
       text,
       color: state.user.color,
       initials: state.user.initials,
+      photo: state.user.photo || null,
       self: true,
     });
     commentInput.value = "";
@@ -1235,6 +1288,13 @@ function bindChat() {
   });
 
   restoreSession();
+  import("./vk-auth.js")
+    .then(({ loadVkSession }) => {
+      if (state.user) return;
+      const vkUser = loadVkSession();
+      if (vkUser) applyUser(vkUser, false);
+    })
+    .catch(() => {});
   seedChat();
   setInterval(randomChatTick, 12000);
 }
@@ -1309,6 +1369,7 @@ async function bootstrapVkRedirect() {
     const user = await consumeVkRedirectIfPresent();
     if (user) setVkUser(user);
   } catch (err) {
+    console.warn(err);
     showVkError(err?.message || "Ошибка возврата из VK");
     openAuthDialog("vk");
   }

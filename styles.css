@@ -482,6 +482,11 @@ button, select, textarea { font: inherit; color: inherit; }
   font-size: 0.8rem;
   color: #041018;
 }
+.avatar-photo {
+  object-fit: cover;
+  padding: 0;
+  background: #122231;
+}
 .comment-meta {
   display: flex;
   gap: 8px;
@@ -787,7 +792,7 @@ button, select, textarea { font: inherit; color: inherit; }
 .vk-profile strong { display: block; }
 .vk-profile small { color: var(--muted); }
 .vk-onetap {
-  min-height: 48px;
+  min-height: 0;
   margin: 8px 0 14px;
   display: grid;
   gap: 8px;
@@ -795,20 +800,17 @@ button, select, textarea { font: inherit; color: inherit; }
 }
 .vk-setup,
 .vk-live { margin-bottom: 12px; }
-.vk-demo-details {
-  margin: 12px 0;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 10px 12px;
-  color: var(--muted);
+.vk-live {
+  display: grid;
+  gap: 10px;
+  justify-items: stretch;
 }
-.vk-demo-details summary {
-  cursor: pointer;
-  font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 8px;
+.btn-vk-large {
+  width: 100%;
+  min-height: 48px;
+  font-size: 1.05rem;
+  font-weight: 700;
 }
-.vk-demo-details[open] summary { margin-bottom: 10px; }
 .dialog-actions {
   display: flex;
   justify-content: flex-end;
