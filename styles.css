@@ -101,13 +101,15 @@ button, select, textarea { font: inherit; color: inherit; }
   flex: none;
 }
 .brand-mark {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: block;
   flex: none;
   object-fit: cover;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+  object-position: center;
+  border: 1px solid rgba(232, 197, 107, 0.45);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .tabs {
@@ -259,11 +261,17 @@ button, select, textarea { font: inherit; color: inherit; }
   color: var(--accent);
 }
 .host-coin {
-  width: clamp(72px, 18vw, 104px);
-  height: auto;
+  width: clamp(88px, 20vw, 128px);
+  height: clamp(88px, 20vw, 128px);
   margin: 0 auto 0.85rem;
   display: block;
-  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.45));
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
+  border: 2px solid rgba(255, 228, 160, 0.55);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
   animation: coin-in 0.7s ease both;
 }
 .host-title {
@@ -543,7 +551,7 @@ button, select, textarea { font: inherit; color: inherit; }
 .lot-visual {
   aspect-ratio: 16 / 10;
   background:
-    url("./chervonets.svg") center 58% / 42% no-repeat,
+    url("./chervonets.jpg") center 55% / 46% no-repeat,
     linear-gradient(145deg, rgba(61, 222, 168, 0.2), transparent 45%),
     linear-gradient(320deg, rgba(232, 197, 107, 0.22), transparent 40%),
     #122231;
