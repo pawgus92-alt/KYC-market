@@ -1,23 +1,33 @@
 /**
- * Server-side VK users.get — avoids browser CORS when Open API is unavailable.
- * Query: ?access_token=...&user_id=optional
+ * Server-side VK users.get — avoids browser CORS.
+ * Token must be sent in POST JSON body (never query string / access logs).
  */
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("Access-Control-Allow-Origin", "*");
 
   if (req.method === "OPTIONS") {
-    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     return res.status(204).end();
   }
 
-  if (req.method !== "GET") {
+  if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const accessToken = String(req.query?.access_token || "").trim();
-  const userId = String(req.query?.user_id || "").trim();
+  let body = req.body;
+  if (typeof body === "string") {
+    try {
+      body = JSON.parse(body || "{}");
+    } catch {
+      body = {};
+    }
+  }
+  body = body && typeof body === "object" ? body : {};
+
+  const accessToken = String(body.access_token || "").trim();
+  const userId = String(body.user_id || "").trim();
   if (!accessToken) {
     return res.status(400).json({ error: "access_token required" });
   }

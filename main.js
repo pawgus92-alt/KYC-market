@@ -335,22 +335,55 @@ function showBuffering(isBuffering) {
   bufferToast.hidden = !isBuffering;
 }
 
+function isSafeHttpUrl(value) {
+  try {
+    const url = new URL(String(value), window.location.origin);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+function isSafeCssColor(value) {
+  return /^#[0-9a-fA-F]{3,8}$/.test(String(value || "").trim());
+}
+
 function appendComment({ name, text, color, initials, photo = null, self = false }) {
   const row = document.createElement("article");
   row.className = self ? "comment is-self" : "comment";
   const now = new Date();
   const stamp = now.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
-  const avatar = photo
-    ? `<img class="avatar avatar-photo" src="${photo}" alt="" width="34" height="34" />`
-    : `<div class="avatar" style="background:${color}">${initials}</div>`;
-  row.innerHTML = `
-    ${avatar}
-    <div>
-      <div class="comment-meta"><strong>${name}</strong><time>${stamp}</time></div>
-      <p></p>
-    </div>
-  `;
-  row.querySelector("p").textContent = text;
+
+  if (photo && isSafeHttpUrl(photo)) {
+    const img = document.createElement("img");
+    img.className = "avatar avatar-photo";
+    img.src = photo;
+    img.alt = "";
+    img.width = 34;
+    img.height = 34;
+    img.referrerPolicy = "no-referrer";
+    row.appendChild(img);
+  } else {
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    if (isSafeCssColor(color)) avatar.style.background = color;
+    avatar.textContent = String(initials || "?").slice(0, 3);
+    row.appendChild(avatar);
+  }
+
+  const body = document.createElement("div");
+  const meta = document.createElement("div");
+  meta.className = "comment-meta";
+  const strong = document.createElement("strong");
+  strong.textContent = String(name || "Гость");
+  const time = document.createElement("time");
+  time.textContent = stamp;
+  meta.append(strong, time);
+  const p = document.createElement("p");
+  p.textContent = String(text || "");
+  body.append(meta, p);
+  row.appendChild(body);
+
   chatFeed.appendChild(row);
   chatFeed.scrollTop = chatFeed.scrollHeight;
 }
@@ -547,7 +580,15 @@ async function refreshVkAuthUi() {
   } = await import("./vk-auth.js");
   const appId = await resolveVkAppId();
   const help = buildVkAppSetupHelp();
-  if (steps) steps.innerHTML = help.steps.map((step) => `<li>${step}</li>`).join("");
+  if (steps) {
+    steps.replaceChildren(
+      ...help.steps.map((step) => {
+        const li = document.createElement("li");
+        li.textContent = step;
+        return li;
+      })
+    );
+  }
   if (input && !input.value) input.value = appId || "";
   const createLink = document.querySelector("#vk-create-app-link");
   if (createLink) createLink.href = help.createAppUrl;
@@ -568,14 +609,28 @@ async function refreshVkAuthUi() {
   }
   showVkError("");
 
-  // Optional One Tap under the main button (if SDK loads).
-  renderVkOneTap(document.querySelector("#vk-onetap"), {
-    appId,
-    onSuccess: (user) => completeVkLogin(user),
-    onError: () => {
-      /* Open API button remains the primary path */
-    },
-  }).catch(() => {});
+  // One Tap is opt-in: load the third-party SDK only after the user asks.
+  const oneTapHost = document.querySelector("#vk-onetap");
+  if (oneTapHost) {
+    oneTapHost.replaceChildren();
+    const enable = document.createElement("button");
+    enable.type = "button";
+    enable.className = "btn btn-ghost";
+    enable.textContent = "Показать VK ID One Tap";
+    enable.addEventListener("click", () => {
+      enable.disabled = true;
+      renderVkOneTap(oneTapHost, {
+        appId,
+        onSuccess: (user) => completeVkLogin(user),
+        onError: () => {
+          enable.disabled = false;
+        },
+      }).catch(() => {
+        enable.disabled = false;
+      });
+    });
+    oneTapHost.appendChild(enable);
+  }
 }
 
 function setLocalUser(account, { fromConnect = true } = {}) {

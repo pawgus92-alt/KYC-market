@@ -7,8 +7,13 @@
 
 const VK_APP_ID_KEY = "chervonets_vk_app_id";
 const VK_SESSION_KEY = "chervonets_vk_session_v1";
+const OAUTH_STATE_KEY = "chervonets_vk_oauth_state";
+const CODE_VERIFIER_KEY = "chervonets_vk_code_verifier";
+const VKID_STATE_KEY = "chervonets_vk_state";
+// Pinned CDN builds; VK ID ships with SRI. Open API has no CORS/SRI from vk.com.
 const OPENAPI_URL = "https://vk.com/js/api/openapi.js?169";
-const VK_SDK_URL = "https://unpkg.com/@vkid/sdk@2.6.1/dist-sdk/umd/index.js";
+const VK_SDK_URL = "https://cdn.jsdelivr.net/npm/@vkid/sdk@2.6.1/dist-sdk/umd/index.js";
+const VK_SDK_INTEGRITY = "sha384-ivJwdpd4aR/VZJeHbQ46TiWzqIinGmZHQOX52Ihx6mD+6UriEowpGrjwjDo7uQlf";
 
 let openApiReady = null;
 let vkidModule = null;
@@ -97,19 +102,25 @@ export function buildVkAppSetupHelp() {
   };
 }
 
-function loadScript(src) {
+function loadScript(src, { integrity = null, crossOrigin = "anonymous" } = {}) {
   return new Promise((resolve, reject) => {
     const found = document.querySelector(`script[src="${src}"]`);
     if (found) {
       if (src.includes("openapi") && window.VK) return resolve();
       if (src.includes("@vkid/sdk") && (window.VKID || window.VKIDSDK)) return resolve();
       found.addEventListener("load", () => resolve());
-      found.addEventListener("error", reject);
+      found.addEventListener("error", () => reject(new Error(`Не загрузился скрипт ${src}`)));
       return;
     }
     const script = document.createElement("script");
     script.src = src;
     script.async = true;
+    script.referrerPolicy = "no-referrer";
+    // Only set crossOrigin/integrity when SRI is available (CDN must send CORS).
+    if (integrity) {
+      script.crossOrigin = crossOrigin;
+      script.integrity = integrity;
+    }
     script.onload = () => resolve();
     script.onerror = () => reject(new Error(`Не загрузился скрипт ${src}`));
     document.head.appendChild(script);
@@ -138,7 +149,7 @@ async function loadVkidSdk() {
     vkidModule = existing;
     return vkidModule;
   }
-  await loadScript(VK_SDK_URL);
+  await loadScript(VK_SDK_URL, { integrity: VK_SDK_INTEGRITY, crossOrigin: "anonymous" });
   const sdk = readVkidGlobal();
   if (!sdk) throw new Error("VK ID SDK не инициализирован");
   vkidModule = sdk;
@@ -197,10 +208,16 @@ export function clearVkSession() {
 }
 
 async function usersGetViaProxy(accessToken, userId) {
-  const url = new URL("/api/vk-profile", window.location.origin);
-  url.searchParams.set("access_token", accessToken);
-  if (userId) url.searchParams.set("user_id", String(userId));
-  const res = await fetch(url.toString(), { cache: "no-store" });
+  // POST body keeps the token out of URL / access logs.
+  const res = await fetch("/api/vk-profile", {
+    method: "POST",
+    cache: "no-store",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      access_token: accessToken,
+      user_id: userId ? String(userId) : undefined,
+    }),
+  });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
     throw new Error(data?.error || "VK proxy error");
@@ -210,48 +227,19 @@ async function usersGetViaProxy(accessToken, userId) {
   return data.user;
 }
 
-function usersGetWithJsonp(accessToken, userId) {
-  // Fallback when /api/vk-profile is unavailable (pure static host).
-  return new Promise((resolve, reject) => {
-    const cb = `__vkUsersGet_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
-    const script = document.createElement("script");
-    const cleanup = () => {
-      delete window[cb];
-      script.remove();
-    };
-    window[cb] = (data) => {
-      cleanup();
-      if (data?.error) {
-        reject(new Error(data.error.error_msg || "VK API error"));
-        return;
-      }
-      const user = data?.response?.[0];
-      if (!user) {
-        reject(new Error("Профиль VK не получен"));
-        return;
-      }
-      resolve(user);
-    };
-    const api = new URL("https://api.vk.com/method/users.get");
-    api.searchParams.set("access_token", accessToken);
-    api.searchParams.set("fields", "photo_100,photo_200,screen_name");
-    api.searchParams.set("v", "5.199");
-    api.searchParams.set("callback", cb);
-    if (userId) api.searchParams.set("user_ids", String(userId));
-    script.src = api.toString();
-    script.onerror = () => {
-      cleanup();
-      reject(new Error("Не удалось запросить профиль VK"));
-    };
-    document.head.appendChild(script);
-  });
+async function usersGetWithToken(accessToken, userId) {
+  // No JSONP fallback: that would put the token in a query string / logs.
+  return usersGetViaProxy(accessToken, userId);
 }
 
-async function usersGetWithToken(accessToken, userId) {
-  try {
-    return await usersGetViaProxy(accessToken, userId);
-  } catch {
-    return usersGetWithJsonp(accessToken, userId);
+function assertOAuthState(expectedKey, receivedState) {
+  const expected = sessionStorage.getItem(expectedKey);
+  sessionStorage.removeItem(expectedKey);
+  if (!expected) {
+    throw new Error("Нет сохранённого state OAuth — войдите ещё раз");
+  }
+  if (!receivedState || expected !== receivedState) {
+    throw new Error("Не совпал state OAuth — войдите ещё раз");
   }
 }
 
@@ -305,7 +293,7 @@ export async function loginWithVkOpenApi(appId) {
  */
 export async function startVkOAuthRedirect(appId) {
   const state = randomString(24);
-  sessionStorage.setItem("chervonets_vk_oauth_state", state);
+  sessionStorage.setItem(OAUTH_STATE_KEY, state);
   const redirectUri = encodeURIComponent(getRedirectUrl());
   const url =
     `https://oauth.vk.com/authorize?client_id=${encodeURIComponent(appId)}` +
@@ -336,10 +324,7 @@ export async function consumeVkRedirectIfPresent() {
   if (error) throw new Error(errorDescription || error);
 
   if (accessToken) {
-    const expected = sessionStorage.getItem("chervonets_vk_oauth_state");
-    if (expected && state && expected !== state) {
-      throw new Error("Не совпал state OAuth — войдите ещё раз");
-    }
+    assertOAuthState(OAUTH_STATE_KEY, state);
     const profile = await usersGetWithToken(accessToken, userId);
     const user = toUserFromVkApi(profile, accessToken, email);
     saveVkSession(user);
@@ -348,8 +333,11 @@ export async function consumeVkRedirectIfPresent() {
 
   // VK ID code flow
   if (code && deviceId) {
+    assertOAuthState(VKID_STATE_KEY, state);
     const VKID = await loadVkidSdk();
-    const codeVerifier = sessionStorage.getItem("chervonets_vk_code_verifier") || undefined;
+    const codeVerifier = sessionStorage.getItem(CODE_VERIFIER_KEY);
+    sessionStorage.removeItem(CODE_VERIFIER_KEY);
+    if (!codeVerifier) throw new Error("Нет code_verifier — войдите ещё раз");
     const tokens = await VKID.Auth.exchangeCode(code, deviceId, codeVerifier);
     const token = tokens?.access_token || tokens?.accessToken;
     if (!token) throw new Error("VK ID не вернул access_token");
@@ -377,13 +365,13 @@ export async function consumeVkRedirectIfPresent() {
 
 export async function renderVkOneTap(container, { appId, onSuccess, onError }) {
   if (!container) return null;
-  container.innerHTML = "";
+  container.replaceChildren();
   try {
     const VKID = await loadVkidSdk();
     const codeVerifier = randomString(64);
     const state = randomString(32);
-    sessionStorage.setItem("chervonets_vk_code_verifier", codeVerifier);
-    sessionStorage.setItem("chervonets_vk_state", state);
+    sessionStorage.setItem(CODE_VERIFIER_KEY, codeVerifier);
+    sessionStorage.setItem(VKID_STATE_KEY, state);
     const initOptions = {
       app: Number(appId),
       redirectUrl: getRedirectUrl(),
