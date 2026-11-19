@@ -2,303 +2,448 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Контур — повторный статус проверки без лишних данных</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Золотой червонец — стрим, советы и защита данных</title>
     <meta
       name="description"
-      content="Контур повторяет статус KYC между приложениями, которым человек сам разрешил выдачу. Досье остаётся у обязанного лица. База личностей не продаётся."
+      content="Золотой червонец — стрим с согласием на запись, архив эфиров, аукционы, полезные советы и защита персональных данных."
     />
-    <meta name="theme-color" content="#164e4a" />
-    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#0b1520" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' https://vk.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' https://api.vk.com https://oauth.vk.com https://id.vk.com https://login.vk.com https://cdn.jsdelivr.net; frame-src https://oauth.vk.com https://id.vk.com https://login.vk.com https://vk.com; object-src 'none'; base-uri 'self'; form-action 'self'"
+    />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <link rel="icon" href="./favicon.png" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,520;7..72,680&family=Manrope:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <a class="skip" href="#main">К содержанию</a>
-    <header class="top">
-      <div class="wrap top-inner">
-        <a class="brand" href="#top">
-          <span class="brand-mark" aria-hidden="true"></span>
-          Контур
+    <a class="skip" href="#app">К приложению</a>
+
+    <header class="chrome">
+      <div class="chrome-inner">
+        <a class="brand" href="#app" id="top">
+          <img class="brand-mark" src="./chervonets.jpg" width="28" height="28" alt="" />
+          <span class="brand-text">Золотой червонец</span>
         </a>
-        <nav class="nav" aria-label="Разделы">
-          <a href="#release">Кому что</a>
-          <a href="#how">Как устроено</a>
-          <a href="#law">Границы</a>
-          <a href="#price">Цена</a>
-          <a href="#pilot">Пилот</a>
+
+        <nav class="tabs" role="tablist" aria-label="Разделы">
+          <button type="button" class="tab is-active" role="tab" id="tab-stream" aria-selected="true" aria-controls="panel-stream" data-tab="stream">Стрим</button>
+          <button type="button" class="tab" role="tab" id="tab-auctions" aria-selected="false" aria-controls="panel-auctions" data-tab="auctions">Аукционы</button>
+          <button type="button" class="tab" role="tab" id="tab-archive" aria-selected="false" aria-controls="panel-archive" data-tab="archive">Архив</button>
+          <button type="button" class="tab" role="tab" id="tab-tips" aria-selected="false" aria-controls="panel-tips" data-tab="tips">Советы</button>
+          <button type="button" class="tab" role="tab" id="tab-privacy" aria-selected="false" aria-controls="panel-privacy" data-tab="privacy">Защита</button>
         </nav>
-        <p class="pilot-flag">Макет. Документы не принимаем</p>
+
+        <div class="chrome-meta" id="chrome-meta" aria-live="polite">
+          <span class="live-pill" id="live-pill">
+            <span class="live-dot" aria-hidden="true"></span>
+            В эфире
+          </span>
+          <span class="latency-badge is-good" id="latency-badge" title="Оценка задержки">~0.8 с</span>
+          <span class="viewers" id="viewers">1 284</span>
+        </div>
+
+        <button type="button" class="btn btn-vk" id="vk-toggle" aria-pressed="false">
+          VK
+        </button>
       </div>
     </header>
 
-    <main id="main">
-      <section class="hero wrap" id="top">
-        <div class="hero-copy">
-          <p class="eyebrow">Повторное использование статуса · одна страна · один заказчик</p>
-          <h1>Один раз проверить. Каждому отдать только нужное.</h1>
-          <p class="lede">
-            Контур хранит проверку у обязанного лица и по отдельному решению человека отдаёт наружу узкий ответ.
-            Биржа получает своё досье. Кошелёк получает «да» или «нет» на один вопрос. База паспортов не продаётся и в публичный реестр не пишется.
+    <div id="app">
+      <div
+        class="tab-panel is-active"
+        id="panel-stream"
+        role="tabpanel"
+        aria-labelledby="tab-stream"
+        data-panel="stream"
+      >
+        <main class="stage" id="stage">
+          <section class="player" aria-label="Прямой стрим">
+            <div class="player-frame" id="player-frame">
+              <video
+                id="stream-video"
+                class="stream-video"
+                playsinline
+                webkit-playsinline
+                preload="metadata"
+                controlslist="nodownload"
+                aria-label="Видео стрима Золотой червонец"
+              ></video>
+
+              <div class="player-overlay" id="player-overlay">
+                <div class="overlay-copy">
+                  <img
+                    class="host-coin"
+                    src="./chervonets.jpg"
+                    width="120"
+                    height="120"
+                    alt="Золотой червонец — сеятель"
+                  />
+                  <p class="host-kicker">С телефона и с компьютера</p>
+                  <h1 class="host-title">Золотой червонец</h1>
+                  <p class="host-sub">Запись — только при подключении · архив после эфира</p>
+                  <button type="button" class="btn btn-primary" id="play-cta">Смотреть</button>
+                </div>
+              </div>
+
+              <div class="buffer-toast" id="buffer-toast" hidden>Подгрузка…</div>
+              <div class="rec-banner" id="rec-banner" hidden>
+                <span class="rec-banner-dot" aria-hidden="true"></span>
+                <span id="rec-banner-text">Запись не ведётся — нужно согласие участника</span>
+              </div>
+
+              <div class="player-bar">
+                <div class="player-bar-left">
+                  <button type="button" class="icon-btn" id="play-btn" aria-label="Пауза">❚❚</button>
+                  <span class="rec is-off" id="rec-indicator" title="Запись выключена" aria-hidden="true"></span>
+                  <span class="stream-title" id="stream-title">Студия «Север»</span>
+                </div>
+                <div class="player-bar-mid" aria-label="Состояние потока">
+                  <span class="stat" id="stat-quality">1080p</span>
+                  <span class="stat" id="stat-bitrate">— Мбит/с</span>
+                  <span class="stat" id="stat-health">буфер 0.6 с</span>
+                </div>
+                <div class="player-bar-right">
+                  <label class="quality-label" for="quality-select">
+                    <span class="sr-only">Качество</span>
+                    <select id="quality-select" class="quality-select" aria-label="Качество видео">
+                      <option value="auto">Авто</option>
+                      <option value="1080" selected>1080p</option>
+                      <option value="720">720p</option>
+                      <option value="480">480p</option>
+                    </select>
+                  </label>
+                  <button
+                    type="button"
+                    class="icon-btn is-on"
+                    id="ll-btn"
+                    aria-pressed="true"
+                    title="Короткий буфер и догон края стрима"
+                  >
+                    Low lat
+                  </button>
+                  <button type="button" class="icon-btn" id="mute-btn" aria-pressed="false" aria-label="Звук">
+                    Звук
+                  </button>
+                  <button type="button" class="icon-btn" id="fs-btn" aria-label="На весь экран">Экран</button>
+                </div>
+              </div>
+            </div>
+            <div class="stream-actions">
+              <button type="button" class="btn btn-ghost" id="end-stream-btn" disabled>Завершить эфир → архив</button>
+              <p class="stage-note" id="consent-note">
+                Разрешение на запись запрашивается только при подключении (VK или аккаунт Червонца).
+              </p>
+            </div>
+          </section>
+
+          <aside class="chat" aria-label="Комментарии ВКонтакте">
+            <header class="chat-head">
+              <div>
+                <p class="chat-kicker">ВКонтакте</p>
+                <h2>Комментарии</h2>
+              </div>
+              <p class="chat-user" id="chat-user">Гость · просмотр</p>
+            </header>
+
+            <div class="chat-feed" id="chat-feed" role="log" aria-live="polite" aria-relevant="additions"></div>
+
+            <form class="chat-compose" id="comment-form" hidden>
+              <label class="sr-only" for="comment-input">Ваш комментарий</label>
+              <textarea
+                id="comment-input"
+                name="comment"
+                rows="2"
+                maxlength="280"
+                placeholder="Комментарий…"
+                enterkeyhint="send"
+                required
+              ></textarea>
+              <div class="compose-row">
+                <span class="char-count" id="char-count">0 / 280</span>
+                <button type="submit" class="btn btn-primary">Отправить</button>
+              </div>
+            </form>
+
+            <div class="chat-gate" id="chat-gate">
+              <p>Войдите через VK или создайте аккаунт Червонца.</p>
+              <div class="gate-actions">
+                <button type="button" class="btn btn-vk" id="vk-connect">Войти через VK</button>
+                <button type="button" class="btn btn-ghost" id="register-connect">Регистрация</button>
+              </div>
+            </div>
+          </aside>
+        </main>
+
+        <section class="about wrap" aria-labelledby="about-title">
+          <p class="eyebrow">Поток</p>
+          <h2 id="about-title">Смотрите без лишней задержки — и с контролем записи</h2>
+          <p class="about-lede">
+            Короткий буфер и чат. Разрешение на запись — только при подключении к Червонцу; готовое видео — во вкладке «Архив».
           </p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="#release">Посмотреть выдачу</a>
-            <a class="btn btn-ghost" href="#pilot">Запросить пилот</a>
+        </section>
+      </div>
+
+      <div
+        class="tab-panel"
+        id="panel-auctions"
+        role="tabpanel"
+        aria-labelledby="tab-auctions"
+        data-panel="auctions"
+        hidden
+      >
+        <section class="auctions wrap" aria-labelledby="auctions-title">
+          <header class="auctions-head">
+            <div>
+              <p class="eyebrow">Отдельный раздел</p>
+              <h1 id="auctions-title">Аукционы</h1>
+              <p class="about-lede">
+                Лоты идут параллельно стриму. Ставки через VK или аккаунт Червонца; просмотр на вкладке «Стрим» не прерывается.
+              </p>
+            </div>
+            <div class="auctions-filter" role="group" aria-label="Фильтр лотов">
+              <button type="button" class="chip is-on" data-filter="all">Все</button>
+              <button type="button" class="chip" data-filter="live">Идут</button>
+              <button type="button" class="chip" data-filter="soon">Скоро</button>
+            </div>
+          </header>
+
+          <div class="auction-grid" id="auction-grid"></div>
+        </section>
+      </div>
+
+      <div class="tab-panel" id="panel-archive" role="tabpanel" aria-labelledby="tab-archive" data-panel="archive" hidden>
+        <section class="content-panel wrap" aria-labelledby="archive-title">
+          <header class="content-head">
+            <div>
+              <p class="eyebrow">После эфира</p>
+              <h1 id="archive-title">Архив записей</h1>
+              <p class="about-lede">
+                Эфир попадает сюда только после вашего согласия на запись и завершения стрима. Файлы в демо хранятся локально в браузере.
+              </p>
+            </div>
+          </header>
+          <div class="archive-list" id="archive-list"></div>
+        </section>
+      </div>
+
+      <div class="tab-panel" id="panel-tips" role="tabpanel" aria-labelledby="tab-tips" data-panel="tips" hidden>
+        <section class="content-panel wrap" aria-labelledby="tips-title">
+          <header class="content-head">
+            <div>
+              <p class="eyebrow">Не только монеты</p>
+              <h1 id="tips-title">Полезные советы</h1>
+              <p class="about-lede">
+                Практические подсказки по стриму, безопасности, покупкам и цифровой гигиене — шире, чем одни нумизматические лоты.
+              </p>
+            </div>
+            <div class="tips-filter" role="group" aria-label="Темы советов">
+              <button type="button" class="chip is-on" data-tip-filter="all">Все</button>
+              <button type="button" class="chip" data-tip-filter="stream">Стрим</button>
+              <button type="button" class="chip" data-tip-filter="privacy">Данные</button>
+              <button type="button" class="chip" data-tip-filter="money">Покупки</button>
+              <button type="button" class="chip" data-tip-filter="coins">Монеты</button>
+              <button type="button" class="chip" data-tip-filter="life">Быт</button>
+            </div>
+          </header>
+          <div class="tips-grid" id="tips-grid"></div>
+        </section>
+      </div>
+
+      <div class="tab-panel" id="panel-privacy" role="tabpanel" aria-labelledby="tab-privacy" data-panel="privacy" hidden>
+        <section class="content-panel wrap" aria-labelledby="privacy-title">
+          <header class="content-head">
+            <div>
+              <p class="eyebrow">Приоритет №1</p>
+              <h1 id="privacy-title">Защита данных</h1>
+              <p class="about-lede">
+                Запись эфира, чат и аккаунт работают только с явным согласием. Минимизируем данные и даём контроль над ними.
+              </p>
+            </div>
+          </header>
+
+          <div class="privacy-grid">
+            <article class="privacy-card">
+              <h2>Согласие на запись</h2>
+              <p>
+                Разрешение на запись спрашивается только при подключении аккаунта. Без галочки при входе запись не
+                стартует; отдельной кнопки на стриме нет.
+              </p>
+            </article>
+            <article class="privacy-card">
+              <h2>Архив по завершении</h2>
+              <p>После «Завершить эфир» файл уходит в архив. Можно удалить запись из архива в любой момент.</p>
+            </article>
+            <article class="privacy-card">
+              <h2>Минимум данных</h2>
+              <p>VK отдаёт имя и id после OAuth; локальный аккаунт — имя, email и хэш пароля. Пароль в открытом виде не хранится.</p>
+            </article>
+            <article class="privacy-card">
+              <h2>Вход через VK</h2>
+              <p>
+                Настоящий вход через окно ВКонтакте (Open API / OAuth). В настройках приложения VK укажите домен сайта
+                и Trusted redirect URL — затем сохраните ID приложения на сайте.
+              </p>
+              <div class="privacy-actions">
+                <button type="button" class="btn btn-vk" id="privacy-vk-setup">Настроить вход VK</button>
+              </div>
+            </article>
+            <article class="privacy-card">
+              <h2>Ваш контроль</h2>
+              <p>Выйдите из аккаунта, удалите локальные данные или отзовите согласие на запись до старта.</p>
+              <div class="privacy-actions">
+                <button type="button" class="btn btn-ghost" id="revoke-consent-btn">Отозвать согласие на запись</button>
+                <button type="button" class="btn btn-ghost" id="wipe-local-btn">Очистить локальные данные</button>
+              </div>
+            </article>
           </div>
-          <ul class="hero-points">
-            <li>Согласие на лишнюю выдачу не спрятано в оферте биржи.</li>
-            <li>Значок «KYC пройден» биржу от AML не освобождает.</li>
-            <li>До первого настоящего паспорта нужны DPIA и локальный counsel.</li>
-          </ul>
+
+          <div class="privacy-policy" id="privacy-policy">
+            <h2>Краткая политика</h2>
+            <ul>
+              <li>Не собираем паспортные данные и документы.</li>
+              <li>Комментарии и ставки видны в эфире; лишний профиль не публикуем.</li>
+              <li>Запись эфира — только с согласия; хранение в архиве можно прервать удалением.</li>
+              <li>В проде: HTTPS, OAuth VK, шифрование at rest, журнал доступов, право на удаление аккаунта.</li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <footer class="footer wrap">
+      <p><strong>Золотой червонец</strong> · стрим по согласию · архив · советы · защита данных</p>
+      <p class="footer-note">
+        Запись эфира — только с разрешения при подключении. После завершения — в архив.
+        <a href="#privacy">Политика и контроль данных</a>
+      </p>
+    </footer>
+
+    <dialog class="vk-dialog" id="auth-dialog" aria-labelledby="auth-dialog-title">
+      <div class="vk-dialog-inner">
+        <p class="chat-kicker">Аккаунт</p>
+        <h2 id="auth-dialog-title">Как подключиться</h2>
+        <p class="auth-lede">Через VK или регистрация на Червонце. Разрешение на запись — только здесь, при подключении.</p>
+
+        <div class="auth-tabs" role="tablist" aria-label="Способ входа">
+          <button type="button" class="auth-tab is-on" role="tab" id="auth-tab-vk" aria-selected="true" data-auth="vk">
+            Через VK
+          </button>
+          <button type="button" class="auth-tab" role="tab" id="auth-tab-register" aria-selected="false" data-auth="register">
+            Регистрация
+          </button>
         </div>
-        <aside class="receipt" aria-label="Пример квитанции выдачи">
-          <p class="receipt-kicker">Квитанция · только этот браузер</p>
-          <h2>Северная биржа</h2>
-          <p class="receipt-role">Обязанное лицо · основание: правовая обязанность AML</p>
-          <ul class="receipt-list">
-            <li><span>Документ и живость</span><strong>в досье биржи</strong></li>
-            <li><span>Страна проживания</span><strong>в досье биржи</strong></li>
-            <li><span>Санкции и PEP</span><strong>MLRO биржи</strong></li>
-            <li><span>Паспорт кошельку</span><strong>не отдаётся</strong></li>
-            <li><span>Причина «санкции» приложению</span><strong>не отдаётся</strong></li>
-          </ul>
-          <p class="receipt-foot">Отказ останавливает счёт. Архив, который закон велит хранить, кнопка не стирает.</p>
-        </aside>
-      </section>
 
-      <section class="band" id="release">
-        <div class="wrap">
-          <div class="section-head">
-            <p class="eyebrow">01 · Выдача</p>
-            <h2>Кому что можно отдать</h2>
-            <p>
-              Это рабочий макет согласия. Выбор остаётся на этой странице, на сервер ничего не уходит, документы загрузить нельзя.
-              Смените получателя и посмотрите, что именно он увидит.
-            </p>
-          </div>
+        <label class="consent-check connect-record-consent" for="connect-record-consent">
+          <input id="connect-record-consent" name="recordConsent" type="checkbox" />
+          <span>Разрешаю запись стрима Червонца и сохранение в архив после эфира.</span>
+        </label>
 
-          <div class="desk">
-            <fieldset class="party-set">
-              <legend>Кто просит статус</legend>
-              <label class="party">
-                <input type="radio" name="party" value="casp" checked />
-                <span>
-                  <strong>Биржа и CASP</strong>
-                  <small>Обязанное лицо. Нужно досье, не значок.</small>
-                </span>
-              </label>
-              <label class="party">
-                <input type="radio" name="party" value="wallet" />
-                <span>
-                  <strong>Кошелёк</strong>
-                  <small>Предикат по отдельному согласию.</small>
-                </span>
-              </label>
-              <label class="party">
-                <input type="radio" name="party" value="open" />
-                <span>
-                  <strong>Нерегулируемое приложение</strong>
-                  <small>Значок вместо программы AML не продаётся.</small>
-                </span>
-              </label>
-            </fieldset>
-
-            <div class="request" id="request" aria-live="polite"></div>
-          </div>
-
-          <div class="journal-wrap">
-            <h3>Журнал этой вкладки</h3>
-            <ol class="journal" id="journal">
-              <li class="empty">Решений пока нет.</li>
-            </ol>
-          </div>
-        </div>
-      </section>
-
-      <section class="wrap section" id="how">
-        <div class="section-head">
-          <p class="eyebrow">02 · Контур</p>
-          <h2>Как устроен пилот</h2>
-          <p>Одна страна, один лицензированный заказчик, политика приёма написана его MLRO. Контур считает ответ и ведёт журнал. Программу AML он на себя не забирает.</p>
-        </div>
-        <ol class="steps">
-          <li>
-            <span>1</span>
-            <h3>Проверка у названного провайдера</h3>
-            <p>Документ и живость делает готовый провайдер по договору. Свою модель распознавания паспортов пилот не обучает и чужие селфи для этого не копит.</p>
-          </li>
-          <li>
-            <span>2</span>
-            <h3>Досье остаётся у биржи</h3>
-            <p>Файл лежит в согласованном регионе, отдельно от ключей и аналитики. Срок селфи короткий. Срок AML-архива задаёт закон, обычно пять лет после конца отношений.</p>
-          </li>
-          <li>
-            <span>3</span>
-            <h3>Наружу уходит предикат</h3>
-            <p>Кошелёк может спросить «старше 18» или «страна из списка», если человек отметил именно это. Паспорт, адрес и причина отказа не прилагаются.</p>
-          </li>
-          <li>
-            <span>4</span>
-            <h3>Ответ стареет</h3>
-            <p>Аттестат живёт дни или месяцы, не год. После обновления санкционного списка старое «одобрен» недействительно. Travel Rule и проверка контроля над адресом остаются у CASP.</p>
-          </li>
-        </ol>
-      </section>
-
-      <section class="band" id="law">
-        <div class="wrap">
-          <div class="section-head">
-            <p class="eyebrow">03 · Право</p>
-            <h2>Можно, можно с лицензией, нельзя</h2>
-            <p>
-              До 10 июля 2027 CDD в ЕС задаёт национальный закон. Затем применяется регламент (EU) 2024/1624.
-              На 14 ноября 2026 сертифицированного EUDI Wallet нет. Это карта для counsel, не разрешение на приём документов.
-            </p>
-          </div>
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Статус</th>
-                  <th>Что сюда входит</th>
-                  <th>Чего здесь нет</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><span class="tag tag-ok">Можно</span></td>
-                  <td>Процессор одной лицензированной фирмы: сбор для неё, журнал, узкий предикат по отдельному согласию.</td>
-                  <td>Своей лицензии CASP, если фирма не хранит криптоактивы и не проводит обмены.</td>
-                </tr>
-                <tr>
-                  <td><span class="tag tag-wait">С лицензией</span></td>
-                  <td>Reliance между двумя обязанными лицами, если закон страны его даёт и досье доступно надзору сразу. Квалифицированный аттестат eIDAS.</td>
-                  <td>Запуска, пока counsel не написал, что reliance вообще допустим.</td>
-                </tr>
-                <tr>
-                  <td><span class="tag tag-no">Нельзя</span></td>
-                  <td>Продажа базы, скрытая передача, общий значок на все биржи, публичная запись «этот адрес прошёл KYC», помощь тем, кого проверка отклонила.</td>
-                  <td>Исключений по формулировке «это же ZK».</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="fine">
-            ZK уместен, чтобы кошелёк проверил предикат и не увидел паспорт. Бирже он не заменяет файл, свежий скрининг, мониторинг и Travel Rule по регламенту (EU) 2023/1113.
-            DPIA повторяется, когда меняются цель, получатель или страна хранения. При высоком остаточном риске нужна консультация органа по данным.
+        <div id="vk-form" class="auth-pane is-on" data-pane="vk">
+          <p class="auth-hint" id="vk-auth-hint">
+            Настоящий вход через окно ВКонтакте (Open API). Нужен ID вашего приложения VK.
           </p>
-        </div>
-      </section>
+          <p class="auth-error" id="vk-auth-error" hidden></p>
 
-      <section class="wrap section" id="never">
-        <div class="section-head">
-          <p class="eyebrow">04 · Запреты</p>
-          <h2>Что с данными не делается</h2>
-        </div>
-        <ul class="stops">
-          <li>Не продаём и не сдаём базу личностей и «лиды KYC».</li>
-          <li>Не отдаём досье приложению, которое человек не видел на экране.</li>
-          <li>Не прячем согласие в оферте биржи и не отмечаем его заранее.</li>
-          <li>Не помогаем пройти проверку чужим документом или слабостью живости.</li>
-          <li>Не обещаем бирже, что ей больше не нужна своя программа AML.</li>
-          <li>Не пишем паспорт, селфи или факт допуска в публичный реестр.</li>
-          <li>Не учим модели на документах клиентов.</li>
-          <li>Не показываем приложению, что человек совпал с санкционным списком.</li>
-        </ul>
-      </section>
+          <div class="vk-setup" id="vk-setup">
+            <ol class="consent-list" id="vk-setup-steps"></ol>
+            <label class="auth-field" for="vk-app-id-input">
+              <span>ID приложения VK</span>
+              <input id="vk-app-id-input" type="text" inputmode="numeric" autocomplete="off" placeholder="Только цифры, например 51789012" />
+            </label>
+            <div class="dialog-actions" style="justify-content: flex-start; flex-wrap: wrap">
+              <button type="button" class="btn btn-primary" id="vk-save-app-id">Сохранить и войти</button>
+              <a class="btn btn-ghost" id="vk-create-app-link" href="https://vk.com/editapp?act=create" target="_blank" rel="noopener">Создать приложение</a>
+            </div>
+          </div>
 
-      <section class="band" id="price">
-        <div class="wrap">
-          <div class="section-head">
-            <p class="eyebrow">05 · Деньги</p>
-            <h2>Платит фирма, не паспорт</h2>
-            <p>Цифры ниже — модельные допущения плана, не оферта и не прогноз выручки. Доля от торговой комиссии в цену не входит: она толкает отдавать больше данных.</p>
+          <div class="vk-live" id="vk-live" hidden>
+            <button type="button" class="btn btn-vk btn-vk-large" id="vk-login-real">Войти через VK</button>
+            <p class="auth-hint" id="vk-live-hint">Откроется настоящее окно авторизации ВКонтакте.</p>
+            <div id="vk-onetap" class="vk-onetap" aria-live="polite"></div>
+            <div class="dialog-actions" style="justify-content: space-between; width: 100%">
+              <button type="button" class="btn btn-ghost" id="vk-change-app-id">Сменить App ID</button>
+              <button type="button" class="btn btn-ghost" id="vk-login-redirect">Войти через redirect</button>
+            </div>
           </div>
-          <div class="price-grid">
-            <article>
-              <p class="price">€5</p>
-              <h3>Первая проверка</h3>
-              <p>Платит обязанная фирма. Прямые затраты модели €2,30. Вклад €2,70.</p>
-            </article>
-            <article>
-              <p class="price">€1</p>
-              <h3>Повторная презентация</h3>
-              <p>Платит получатель, если на эту выдачу есть основание. Затраты модели €0,25.</p>
-            </article>
-            <article>
-              <p class="price">€30–50 тыс.</p>
-              <h3>Пилот на год</h3>
-              <p>Одна фирма: интеграция, пакет для DPIA и потолок проверок. Три таких пилота постоянные расходы не закрывают.</p>
-            </article>
-          </div>
-          <div class="meter" aria-hidden="true">
-            <div class="meter-label"><span>Вклад на 120 тыс. человек при двух повторных выдачах</span><span>€504 тыс.</span></div>
-            <div class="meter-track"><span class="meter-fill"></span><span class="meter-cost">расходы €480 тыс.</span></div>
-          </div>
-          <p class="fine">Линия постоянных расходов около €480 тыс. в год перекрывается только около 120 тысяч проверенных людей, и только если повторные выдачи законны. Дыру нельзя закрывать продажей базы.</p>
-        </div>
-      </section>
 
-      <section class="wrap section" id="pilot">
-        <div class="split">
-          <div>
-            <p class="eyebrow">06 · Пилот</p>
-            <h2>Сначала одна лицензированная фирма</h2>
-            <p>Воронка начинается с CASP одной страны. Кошелёк подключается позже и только за предикатом. Протокол без программы AML в пилот не берётся.</p>
-            <ol class="roadmap">
-              <li><strong>Бумага.</strong> DPIA, роли контролёра и вывод counsel о reliance. Паспортов ещё нет.</li>
-              <li><strong>Синтетика.</strong> Согласие, отзыв, журнал и пентест на макете.</li>
-              <li><strong>Один заказчик.</strong> Договор, регион хранения, одна принятая проверка и один отказ с человеком в контуре.</li>
-              <li><strong>Чужая фирма.</strong> Только после письменного reliance. Иначе шаг не начинается.</li>
-            </ol>
+          <div class="dialog-actions" id="vk-close-row">
+            <button type="button" class="btn btn-ghost" id="vk-dialog-close">Закрыть</button>
           </div>
-          <form class="pilot-form" id="pilot-form" novalidate>
-            <h3>Заявка на разговор</h3>
-            <p class="form-note">Макет не отправляет форму и не принимает документы. После проверки полей он покажет, с чего начал бы настоящий пилот.</p>
-            <label>
-              Организация
-              <input name="org" type="text" autocomplete="organization" required maxlength="120" />
+        </div>
+
+        <div id="register-pane" class="auth-pane" data-pane="register" hidden>
+          <div class="auth-subtabs" role="tablist" aria-label="Регистрация или вход">
+            <button type="button" class="auth-subtab is-on" data-local-mode="register" aria-selected="true">
+              Создать аккаунт
+            </button>
+            <button type="button" class="auth-subtab" data-local-mode="login" aria-selected="false">
+              Уже есть аккаунт
+            </button>
+          </div>
+
+          <form id="register-form">
+            <p class="auth-hint">Имя, email и пароль. В демо аккаунт хранится в браузере.</p>
+            <p class="auth-error" id="register-error" hidden></p>
+            <label class="auth-field" for="reg-name">
+              <span>Имя</span>
+              <input id="reg-name" name="name" type="text" maxlength="40" autocomplete="name" required placeholder="Алексей" />
             </label>
-            <label>
-              Страна регистрации
-              <input name="country" type="text" autocomplete="country-name" required maxlength="80" />
+            <label class="auth-field" for="reg-email">
+              <span>Email</span>
+              <input id="reg-email" name="email" type="email" autocomplete="email" required placeholder="you@mail.ru" />
             </label>
-            <label>
-              Роль
-              <select name="role" required>
-                <option value="">Выберите</option>
-                <option value="casp">Лицензированный CASP или биржа</option>
-                <option value="wallet">Кошелёк без своей AML-программы</option>
-                <option value="other">Другое</option>
-              </select>
+            <label class="auth-field" for="reg-password">
+              <span>Пароль</span>
+              <input id="reg-password" name="password" type="password" minlength="6" autocomplete="new-password" required placeholder="Не меньше 6 символов" />
             </label>
-            <label>
-              Рабочая почта
-              <input name="email" type="email" autocomplete="email" required maxlength="120" />
+            <label class="auth-field" for="reg-password2">
+              <span>Повтор пароля</span>
+              <input id="reg-password2" name="password2" type="password" minlength="6" autocomplete="new-password" required placeholder="Ещё раз" />
             </label>
-            <label class="check">
-              <input name="ack" type="checkbox" required />
-              <span>Понимаю, что это макет: документы не загружаются, заявка никуда не уходит, а боевой приём требует DPIA и локального counsel.</span>
+            <label class="consent-check" for="reg-privacy">
+              <input id="reg-privacy" name="privacy" type="checkbox" required />
+              <span>Соглашаюсь на обработку данных по правилам вкладки «Защита». Пароль хранится только как хэш.</span>
             </label>
-            <button class="btn btn-primary" type="submit">Показать следующий шаг</button>
-            <p class="form-error" id="form-error" role="alert"></p>
-            <div class="form-result" id="form-result" hidden></div>
+            <div class="dialog-actions">
+              <button type="button" class="btn btn-ghost" id="register-cancel-btn">Отмена</button>
+              <button type="submit" class="btn btn-primary" id="register-submit-btn">Зарегистрироваться</button>
+            </div>
+          </form>
+
+          <form id="login-form" hidden>
+            <p class="auth-hint">Войдите в аккаунт Червонца.</p>
+            <p class="auth-error" id="login-error" hidden></p>
+            <label class="auth-field" for="login-email">
+              <span>Email</span>
+              <input id="login-email" name="email" type="email" autocomplete="email" required placeholder="you@mail.ru" />
+            </label>
+            <label class="auth-field" for="login-password">
+              <span>Пароль</span>
+              <input id="login-password" name="password" type="password" minlength="6" autocomplete="current-password" required placeholder="Пароль" />
+            </label>
+            <div class="dialog-actions">
+              <button type="button" class="btn btn-ghost" id="login-cancel-btn">Отмена</button>
+              <button type="submit" class="btn btn-primary" id="login-submit-btn">Войти</button>
+            </div>
           </form>
         </div>
-      </section>
-    </main>
-
-    <footer class="foot">
-      <div class="wrap foot-inner">
-        <p><strong>Контур</strong> — учебный макет продукта. Не заключение адвоката, не форма боевого согласия и не приём документов.</p>
-        <p>Самое строгое право из страны заказчика, страны человека и страны хранения применяется одновременно. Локальная проверка обязательна до пилота с настоящими данными.</p>
       </div>
-    </footer>
+    </dialog>
+
     <script src="./main.js" defer></script>
   </body>
 </html>
